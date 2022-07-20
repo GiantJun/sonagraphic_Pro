@@ -9,10 +9,10 @@ from utils.toolkit import plot_confusion_matrix, plot_ROC_curve
 from utils.toolkit import count_parameters
 
 class TestModel(Base):
-    def __init__(self, args, seed):
-        super().__init__(args, seed)
+    def __init__(self, trainer_id, args, seed):
+        super().__init__(trainer_id, args, seed)
         self.backbone = args['backbone']
-        self.network = get_model(args['backbone'], args['pretrained'], args['pretrain_path'])
+        self.network = get_model(args)
 
         for name, param in self.network.named_parameters():
             param.requires_grad = False
@@ -28,17 +28,34 @@ class TestModel(Base):
         pass
     
     def after_train(self, dataloaders, tblog=None):
+        # valid
+        if not dataloaders['valid'] is None:
+            all_preds, all_labels, all_scores = self.get_output(dataloaders['valid'])
+
+            # 将 confusion matrix 和 ROC curve 输出到 tensorboard
+            cm_name = self.method+'_'+self.backbone+"_valid_Confusion_Matrix"
+            cm_figure, tp, fp, fn, tn = plot_confusion_matrix(all_labels, all_preds, self.class_names, cm_name)
+            if tblog is not None:
+                tblog.add_figure(cm_name, cm_figure)
+
+            acc = torch.sum(all_preds == all_labels).item() / len(all_labels)
+            recall = tn / (tn + fp)
+            precision = tn / (tn + fn)
+            specificity = tp / (tp + fn)
+            logging.info('===== Evaluate valid set result ======')
+            logging.info('acc = {:.4f} precision = {:.4f} , recall = {:.4f} , specificity = {:.4f}'.format(acc, precision, recall, specificity))
+
         # test        
         all_preds, all_labels, all_scores = self.get_output(dataloaders['test'])
 
         # 将 confusion matrix 和 ROC curve 输出到 tensorboard
         cm_name = self.method+'_'+self.backbone+"_test_Confusion_Matrix"
-        cm_figure, tp, fp, fn, tn = plot_confusion_matrix(all_labels, all_preds, ['non-BA', 'BA'], cm_name)
+        cm_figure, tp, fp, fn, tn = plot_confusion_matrix(all_labels, all_preds, self.class_names, cm_name)
         if tblog is not None:
             tblog.add_figure(cm_name, cm_figure)
 
         roc_name = self.method+'_'+self.backbone+"_test_ROC_Curve"
-        roc_auc, roc_figure, opt_threshold, opt_point = plot_ROC_curve(all_labels, all_scores, ['non-BA', 'BA'], roc_name)
+        roc_auc, roc_figure, opt_threshold, opt_point = plot_ROC_curve(all_labels, all_scores, self.class_names, roc_name)
         if tblog is not None:
             tblog.add_figure(roc_name, roc_figure)
 

@@ -1,0 +1,29 @@
+######### Basic Settings #########
+basic:
+    prefix: reproduce
+    device: '8'
+    seed: [0] 
+    num_workers: 8
+
+    # Dataset Choises: cifar100, cifar100, imagenet100, imagenet1000, tinyimagenet,
+    # skin7, sd198(also known as skin40), mymedmnist
+    dataset: bal_dldataset_all
+
+    ret_valid: true
+
+    # Method Choises: 
+    method: test
+    nlp_num: 0
+
+    # Backbone Choises: resnet18, resnet18_cbam, cosine_resnet18, 
+    # resnet32, cosine_resnet32, resnet34, cosine_resnet34, resnet50
+    backbone: resnet101
+    pretrained: true
+    pretrain_path: logs/balsup_mocov2/res101_100x100_lr0.001_epoch200_4096_sgd/moco_encoder_q.pkl
+    freeze: true
+    save_models: true # if true, programm will save model's weights during incremental train
+
+    img_size: 100
+    save_name: test_
+    
+            

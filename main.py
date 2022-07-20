@@ -61,7 +61,8 @@ if __name__ == '__main__':
                     'select_list':saved_dict['select_list'],
                     'backbone': saved_dict['backbone'],
                     'seed': saved_dict['seed'],
-                    'base_backbone': saved_dict['base_backbone']})
+                    'base_backbone': saved_dict['base_backbone'],
+                    'split_for_valid': False}) # 为了同时测试 内部测试集 和 外部测试集
             data_loaders, class_num, class_names = get_dataloader(args)
             test_dataloaders = {'valid':data_loaders['valid'][0], 'test':data_loaders['test'][0]}
             args.update({'class_num':class_num, 'class_names':class_names})

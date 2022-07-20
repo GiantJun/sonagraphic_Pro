@@ -5,10 +5,8 @@ basic:
     seed: [0] 
     num_workers: 8
 
-    # Dataset Choises: dldataset_all, bal_dldataset_all
+    # Dataset Choises: ultrasound_dataset
     dataset: ultrasound_dataset
-
-    ret_valid: true
 
     # Method Choises: 
     method: finetune
@@ -25,6 +23,7 @@ basic:
 options:
     ultrasound_dataset:
         img_size: [175,300]
+        split_for_valid: true # if kfold>1, it will be ignored
         
         kfold: 5
         epochs: 2

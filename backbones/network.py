@@ -1,9 +1,9 @@
 from torch import nn
 from torch import load
 import logging
-from torchvision.models import resnet18, resnet34, resnet50, resnet101
+from torchvision.models import resnet18, resnet34, resnet50, resnet101, resnet152
 from backbones.multi_branch_net import MultiBranch_cat, MultiBranch_sum
-
+from timm.models import swin_small_patch4_window7_224, vit_base_patch16_224, efficientnet_b5, tnt_b_patch16_224, tnt_s_patch16_224
 
 def get_model(args):
     name = args['backbone'].lower()
@@ -20,6 +20,9 @@ def get_model(args):
     elif name == 'resnet101':
         net = resnet101(pretrained=args['pretrained'])
         logging.info('created resnet101!')
+    elif name == 'resnet152':
+        net = resnet152(pretrained=args['pretrained'])
+        logging.info('created resnet152!')
     elif name == 'multi_branch_sum':
         net = MultiBranch_sum(args['base_backbone'], len(args['select_list']), args['class_num'])
     elif name == 'multi_branch_cat':
@@ -27,7 +30,7 @@ def get_model(args):
     else:
         raise NotImplementedError('Unknown type {}'.format(args['backbone']))
 
-    if not 'multi_branch' in name:
+    if 'resnet' in name:
         if 'select_list' in args and len(args['select_list']) != 3:
             net.conv1 = nn.Conv2d(len(args['select_list']), 64, kernel_size=7, stride=2, padding=3, bias=False)
             logging.info('Change network input channel from 3 to {}'.format(len(args['select_list'])))

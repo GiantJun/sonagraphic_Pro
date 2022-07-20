@@ -5,11 +5,7 @@ basic:
     seed: [0] 
     num_workers: 8
 
-    # Dataset Choises: cifar100, cifar100, imagenet100, imagenet1000, tinyimagenet,
-    # skin7, sd198(also known as skin40), mymedmnist
     dataset: ultrasound_dataset
-
-    ret_valid: true
 
     # Method Choises: 
     method: test

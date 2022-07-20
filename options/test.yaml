@@ -15,11 +15,11 @@ basic:
     method: test
 
     pretrained: true
-    pretrain_path: logs/finetune/res101_5fold_all_test/trainer0_model_dict_2.pkl
+    pretrain_path: logs/finetune/multi_branch_sum_018_test/trainer0_model_dict_2.pkl
     
     batch_size: 16
 
     img_size: 100
-    save_name: test_res101
+    save_name: test_multi_branch_cat_018
     
             

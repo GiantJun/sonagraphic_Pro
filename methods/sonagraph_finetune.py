@@ -11,7 +11,7 @@ from os.path import join
 class Sonagraph_Finetune(Base):
     def __init__(self, trainer_id, args, seed):
         super().__init__(trainer_id, args, seed)
-        self.backbone = args['backbone']
+        self.base_backbone = args['base_backbone'] if 'base_backbone' in args else None
         self.network = get_model(args)
         self.select_list = args['select_list']
 
@@ -101,7 +101,8 @@ class Sonagraph_Finetune(Base):
             'backbone': self.backbone,
             'select_list': self.select_list,
             'img_size': self.img_size,
-            'seed': self.seed
+            'seed': self.seed,
+            'base_backbone': self.base_backbone
             }, save_path)
         logging.info('model state dict saved at: {}'.format(save_path))
         

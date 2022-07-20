@@ -60,7 +60,8 @@ if __name__ == '__main__':
                     'img_size':saved_dict['img_size'], 
                     'select_list':saved_dict['select_list'],
                     'backbone': saved_dict['backbone'],
-                    'seed': saved_dict['seed']})
+                    'seed': saved_dict['seed'],
+                    'base_backbone': saved_dict['base_backbone']})
             data_loaders, class_num, class_names = get_dataloader(args)
             test_dataloaders = {'valid':data_loaders['valid'][0], 'test':data_loaders['test'][0]}
             args.update({'class_num':class_num, 'class_names':class_names})

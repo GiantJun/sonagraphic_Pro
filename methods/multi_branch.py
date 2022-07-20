@@ -6,12 +6,14 @@ import torch
 from tqdm import tqdm
 from torch.nn.functional import softmax
 from utils.toolkit import plot_confusion_matrix, plot_ROC_curve
+from os.path import join
 
-class Finetune(Base):
+class Multi_Branch(Base):
     def __init__(self, trainer_id, args, seed):
         super().__init__(trainer_id, args, seed)
         self.backbone = args['backbone']
         self.network = get_model(args)
+        self.select_list = args['select_list']
 
         if self.freeze:
             for name, param in self.network.named_parameters():
@@ -87,6 +89,21 @@ class Finetune(Base):
                     _tqdm.update(1)
         
         return all_preds, all_labels, all_scores
+
+    def save_checkpoint(self, filename, model=None, state_dict=None):
+        save_path = join(self.save_dir, filename+'.pkl')
+        if state_dict != None:
+            save_dict = state_dict
+        else:
+            save_dict = model.state_dict()
+        torch.save({
+            'state_dict': save_dict,
+            'backbone': self.backbone,
+            'select_list': self.select_list,
+            'img_size': self.img_size,
+            'seed': self.seed
+            }, save_path)
+        logging.info('model state dict saved at: {}'.format(save_path))
         
         
 

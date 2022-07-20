@@ -1,7 +1,7 @@
 ######### Basic Settings #########
 basic:
     prefix: reproduce
-    device: '1'
+    device: '0'
     seed: [0] 
     num_workers: 8
 
@@ -14,20 +14,22 @@ basic:
     method: finetune
 
     # Backbone Choises: resnet18, resnet18_cbam, resnet50, resnet101
-    backbone: resnet101
+    backbone: multi_branch_cat
+    base_backbone: resnet18
+
     pretrained: true
     # pretrain_path: pretrain_models/imagenet200_resnet18_cbam_pretrained.pth
     freeze: false
     save_models: true # if true, programm will save model's weights during incremental train
 
-    save_name: res101_5fold_all_test
+    save_name: multi_branch_cat_01238
 
 options:
     ultrasound_dataset:
         img_size: [175,300]
         
-        kfold: 5
-        epochs: 2
+        kfold: 1
+        epochs: 150
         batch_size: 16
 
         lrate: 0.0001
@@ -40,5 +42,5 @@ options:
         criterion: ce
 
         # select_list: [0, 1, 8]
-        # select_list: [0, 1, 2, 3, 8]
-        select_list: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+        select_list: [0, 1, 2, 3, 8]
+        # select_list: [0, 1, 2, 3, 4, 5, 6, 7, 8]

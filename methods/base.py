@@ -15,32 +15,34 @@ class Base(object):
         self.trainer_id = trainer_id
         
         self.class_names = args['class_names']
+        self.img_size = args['img_size']
 
         self.multiple_gpus = list(range(len(args['device'].split(','))))
         self.method = args['method']
-        self.epochs = args['epochs']
-        self.lrate = args['lrate']
+        self.epochs = args['epochs'] if 'epochs' in args else None
+        self.lrate = args['lrate'] if 'lrate' in args else None
 
         self.seed = seed
         self.backbone = args['backbone']
 
-        self.opt_type = args['opt_type']
+        self.opt_type = args['opt_type'] if 'opt_type' in args else None
         if self.opt_type == 'sgd':
             self.weight_decay = args['weight_decay']
 
-        self.scheduler = args['scheduler']
+        self.scheduler = args['scheduler'] if 'scheduler' in args else None
         if self.scheduler == 'multi_step':
             self.milestones = args['milestones']
             self.lrate_decay = args['lrate_decay']
         
         self.network = None
-        self.save_models = args['save_models']
+        self.save_models = args['save_models'] if 'scheduler' in args else None
         self.save_dir = args['logdir']
 
-        if args['criterion'] == 'ce':
-            self.criterion = nn.CrossEntropyLoss()
-        elif args['criterion'] == 'focal':
-            self.criterion = FocalLoss(args['gamma'],args['alpha'])
+        if 'criterion' in args:
+            if args['criterion'] == 'ce':
+                self.criterion = nn.CrossEntropyLoss()
+            elif args['criterion'] == 'focal':
+                self.criterion = FocalLoss(args['gamma'],args['alpha'])
 
         self.freeze = False if not 'freeze' in args else args['freeze']
         

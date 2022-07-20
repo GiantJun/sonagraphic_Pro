@@ -54,19 +54,37 @@ if __name__ == '__main__':
 
     tblog = set_logger(args)
     try:
-        # 准备数据集
-        data_loaders, class_num, class_names = get_dataloader(args)
-        args.update({'class_num':class_num, 'class_names':class_names})
-        
-        for seed in args['seed']:
+        if 'test' in args['method']:
+            saved_dict = torch.load(args['pretrain_path'])
+            args.update({'kfold': 1,
+                    'img_size':saved_dict['img_size'], 
+                    'select_list':saved_dict['select_list'],
+                    'backbone': saved_dict['backbone'],
+                    'seed': saved_dict['seed']})
+            data_loaders, class_num, class_names = get_dataloader(args)
+            test_dataloaders = {'valid':data_loaders['valid'][0], 'test':data_loaders['test'][0]}
+            args.update({'class_num':class_num, 'class_names':class_names})
+            seed = saved_dict['seed']
             print_args(args, seed)
             set_random(seed)
-            for idx in range(args['kfold']):
-                logging.info('='*10+' fold {} '.format(idx)+'='*10)
-                fold_dataloaders = {'train':data_loaders['train'][idx], 'valid':data_loaders['valid'][idx], 'test':data_loaders['test'][idx]}
-                trainer = get_trainer(idx, args, seed)
-                trainer.train_model(fold_dataloaders, tblog)
-                trainer.after_train(fold_dataloaders, tblog)
+            trainer = get_trainer(0, args, seed)
+            trainer.train_model(test_dataloaders, tblog)
+            trainer.after_train(test_dataloaders, tblog)
+
+        else:
+            # 准备数据集
+            data_loaders, class_num, class_names = get_dataloader(args)
+            args.update({'class_num':class_num, 'class_names':class_names})
+            
+            for seed in args['seed']:
+                print_args(args, seed)
+                set_random(seed)
+                for idx in range(args['kfold']):
+                    logging.info('='*10+' fold {} '.format(idx)+'='*10)
+                    fold_dataloaders = {'train':data_loaders['train'][idx], 'valid':data_loaders['valid'][idx], 'test':data_loaders['test'][idx]}
+                    trainer = get_trainer(idx, args, seed)
+                    trainer.train_model(fold_dataloaders, tblog)
+                    trainer.after_train(fold_dataloaders, tblog)
     except Exception as e:
         logging.error(e, exc_info=True, stack_info=True)
 

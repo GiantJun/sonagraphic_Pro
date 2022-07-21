@@ -52,17 +52,22 @@ if __name__ == '__main__':
 
     os.environ['CUDA_VISIBLE_DEVICES']=args['device']
 
-    tblog = set_logger(args)
     try:
-        if 'test' in args['method']:
+        if 'test' == args['method']:
             saved_dict = torch.load(args['pretrain_path'])
-            args.update({'kfold': 1,
+            save_name = os.path.basename(os.path.dirname(args['pretrain_path']))
+            args.update({'pretrained': True,
+                    'kfold': 1,
                     'img_size':saved_dict['img_size'], 
                     'select_list':saved_dict['select_list'],
                     'backbone': saved_dict['backbone'],
                     'seed': saved_dict['seed'],
-                    'base_backbone': saved_dict['base_backbone'],
-                    'split_for_valid': False}) # 为了同时测试 内部测试集 和 外部测试集
+                    'base_backbone': saved_dict['base_backbone'] if 'base_backbone' in args else None,
+                    'split_for_valid': False, # 为了同时测试 内部测试集 和 外部测试集
+                    'save_name':save_name}) # 测试结果目录与模型所在目录同名
+
+            tblog = set_logger(args, ret_tblog=False, rename=False) # 若出现重名文件夹时，直接覆盖掉原来的内容
+            
             data_loaders, class_num, class_names = get_dataloader(args)
             test_dataloaders = {'valid':data_loaders['valid'][0], 'test':data_loaders['test'][0]}
             args.update({'class_num':class_num, 'class_names':class_names})
@@ -73,7 +78,23 @@ if __name__ == '__main__':
             trainer.train_model(test_dataloaders, tblog)
             trainer.after_train(test_dataloaders, tblog)
 
+        elif 'emsemble_test' in args['method']:
+            save_name = os.path.basename(args['pretrain_dir'])
+            args.update({'pretrained': True,
+                    'kfold': 1,
+                    'split_for_valid': False, # 为了同时测试 内部测试集 和 外部测试集
+                    'save_name':save_name}) # 测试结果目录与模型所在目录同名
+
+            tblog = set_logger(args, ret_tblog=False, rename=False) # 若出现重名文件夹时，直接覆盖掉原来的内容
+            
+            seed = 0
+            print_args(args, seed)
+            set_random(seed)
+            trainer = get_trainer(0, args, seed)
+            trainer.train_model(None, tblog)
+            trainer.after_train(None, tblog)
         else:
+            tblog = set_logger(args, ret_tblog=True, rename=True)
             # 准备数据集
             data_loaders, class_num, class_names = get_dataloader(args)
             args.update({'class_num':class_num, 'class_names':class_names})
@@ -87,6 +108,7 @@ if __name__ == '__main__':
                     trainer = get_trainer(idx, args, seed)
                     trainer.train_model(fold_dataloaders, tblog)
                     trainer.after_train(fold_dataloaders, tblog)
+
     except Exception as e:
         logging.error(e, exc_info=True, stack_info=True)
 

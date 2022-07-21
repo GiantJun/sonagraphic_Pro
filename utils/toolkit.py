@@ -8,13 +8,13 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix, roc_curve, auc
 from itertools import product
 
-def set_logger(args) -> SummaryWriter:
+def set_logger(args, ret_tblog=True, rename=True) -> SummaryWriter:
     nowTime = datetime.datetime.now().strftime('_%Y-%m-%d-%H-%M-%S')
     if not 'save_name' in args:
         logdir = 'logs/{}/'.format(args['method'])+'{}_{}_{}_{}_{}'.format(args['backbone'], args['dataset'], args['img_size'], args['opt_type'], args['criterion'])
     else:
         logdir = 'logs/{}/'.format(args['method'])+args['save_name']
-    if os.path.exists(logdir):
+    if os.path.exists(logdir) and rename: # rename 用于判断，若出现重名文件夹时，是否创建一个新的
         print('{} has already exist, use {} instead'.format(logdir, logdir+nowTime))
         logdir += nowTime
     args.update({'logdir':logdir})
@@ -30,7 +30,10 @@ def set_logger(args) -> SummaryWriter:
             logging.StreamHandler(sys.stdout)
         ]
     )
-    return SummaryWriter(logdir)
+    if ret_tblog:
+        return SummaryWriter(logdir)
+    else:
+        return None
 
 def makedirs(path):
     if not os.path.exists(path):

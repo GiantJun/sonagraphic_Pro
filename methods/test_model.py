@@ -12,7 +12,6 @@ from os.path import join
 class TestModel(Base):
     def __init__(self, trainer_id, args, seed):
         super().__init__(trainer_id, args, seed)
-        self.backbone = args['backbone']
         self.network = get_model(args)
 
         for name, param in self.network.named_parameters():

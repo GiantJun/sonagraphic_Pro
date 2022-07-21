@@ -14,8 +14,8 @@ class Base(object):
     def __init__(self, trainer_id, args, seed):
         self.trainer_id = trainer_id
         
-        self.class_names = args['class_names']
-        self.img_size = args['img_size']
+        self.class_names = args['class_names'] if 'class_names' in args else None
+        self.img_size = args['img_size'] if 'img_size' in args else None
 
         self.multiple_gpus = list(range(len(args['device'].split(','))))
         self.method = args['method']
@@ -23,7 +23,7 @@ class Base(object):
         self.lrate = args['lrate'] if 'lrate' in args else None
 
         self.seed = seed
-        self.backbone = args['backbone']
+        self.backbone = args['backbone'] if 'backbone' in args else None
 
         self.opt_type = args['opt_type'] if 'opt_type' in args else None
         if self.opt_type == 'sgd':
@@ -100,13 +100,17 @@ class Base(object):
                 
             logging.info(info)
 
-            if self.save_models and (epoch % 100 == 0 or epoch==self.epochs-1) and epoch > 0:
-                if dataloaders['valid'] != None and not ('moco' in self.method):
-                    self.save_checkpoint('trainer{}_model_dict_{}'.format(self.trainer_id, epoch+1), state_dict=best_model_wts)
-                    logging.info('save model dict from best valid model')
-                else:
-                    self.save_checkpoint('trainer{}_model_dict_{}'.format(self.trainer_id, epoch), copy.deepcopy(self.network).cpu())
-                    logging.info('save model dict from current model')
+            # 不采用隔步保存模型的方式
+            # if self.save_models and (epoch % 100 == 0 or epoch==self.epochs-1) and epoch > 0:
+            #     if dataloaders['valid'] != None and not ('moco' in self.method):
+            #         self.save_checkpoint('trainer{}_model_dict_{}'.format(self.trainer_id, epoch+1), state_dict=best_model_wts)
+            #         logging.info('save model dict from best valid model')
+            #     else:
+            #         self.save_checkpoint('trainer{}_model_dict_{}'.format(self.trainer_id, epoch), copy.deepcopy(self.network).cpu())
+            #         logging.info('save model dict from current model')
+        
+        self.save_checkpoint('trainer{}_model_dict'.format(self.trainer_id), state_dict=best_model_wts)
+        logging.info('save model dict from best valid model')
             
         if dataloaders['valid'] != None and not ('mocov2' in self.method):
             logging.info('Best model was selected in epoch {} with valid acc={}'.format(best_epoch, best_valid))

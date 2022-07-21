@@ -9,9 +9,9 @@ basic:
     # split_for_valid: False (default)
 
     # Method Choises: 
-    method: test
+    method: emsemble_test_avg
 
-    pretrain_path: logs/finetune/res101_5fold_all/trainer4_model_dict_150.pkl
+    pretrain_dir: logs/finetune/res101_5fold_all
     
     batch_size: 16
 

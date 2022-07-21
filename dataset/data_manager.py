@@ -12,12 +12,7 @@ from torch.utils.data import SubsetRandomSampler, DataLoader
 from sklearn.model_selection import train_test_split
 import logging
 
-
-img_size_global = (100,100)
-
 def get_dataloader(args):
-    global img_size_global
-    img_size_global = args['img_size']
 
     dataset = get_data(args['dataset'])
     dataset.download_data(args['select_list'])
@@ -61,7 +56,7 @@ def get_dataloader(args):
             valid_dataloaders.append(DataLoader(dataset.valid_dataset, batch_size=args['batch_size'], num_workers=args['num_workers']))
             test_dataloaders.append(DataLoader(dataset.test_dataset, batch_size=args['batch_size'], num_workers=args['num_workers']))
 
-    return {'train':train_dataloaders, 'valid':valid_dataloaders, 'test':test_dataloaders}, dataset.class_num, dataset.class_names
+    return {'train':train_dataloaders, 'valid':valid_dataloaders, 'test':test_dataloaders}, dataset.class_num, dataset.class_names, dataset.img_size
 
 
 def get_data(dataset_name):
@@ -97,24 +92,24 @@ class iData(object):
     class_num = None
 
 class Sonagraph(iData):
-    # 训练数据集对象
-    global img_size_global
+    img_size = UltrasoundDataset.img_size
 
+    # 训练数据集对象
     train_tf = transforms.Compose([
             transforms.ColorJitter(brightness=0.15, contrast=0.15, saturation=0.15, hue=0.1),
             transforms.RandomHorizontalFlip(),
             transforms.RandomRotation(5),
             myTransform.AddPepperNoise(0.95, p=0.5),
-            transforms.Resize(img_size_global),
+            transforms.Resize(img_size),
             transforms.Grayscale(num_output_channels=1),
             transforms.ToTensor(),
-            transforms.Normalize(0.3505138, 0.21441448)])  # 此处的 mean 和 std 由
+            transforms.Normalize(UltrasoundDataset.mean_gray, UltrasoundDataset.std_gray)])  # 此处的 mean 和 std 由
 
     test_tf = transforms.Compose([
-            transforms.Resize(img_size_global),
+            transforms.Resize(img_size),
             transforms.Grayscale(num_output_channels=1),
             transforms.ToTensor(),
-            transforms.Normalize(0.3505138, 0.21441448)])
+            transforms.Normalize(UltrasoundDataset.mean_gray, UltrasoundDataset.std_gray)])
 
     def download_data(self, select_list):
         # or replay os.environ['xxx'] with './data/'

@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix, roc_curve, auc
 from itertools import product
 
+
+
 def set_logger(args, ret_tblog=True, rename=True) -> SummaryWriter:
     nowTime = datetime.datetime.now().strftime('_%Y-%m-%d-%H-%M-%S')
     if not 'save_name' in args:
@@ -26,7 +28,7 @@ def set_logger(args, ret_tblog=True, rename=True) -> SummaryWriter:
         level=logging.INFO,
         format='%(asctime)s [%(filename)s] => %(message)s',
         handlers=[
-            logging.FileHandler(filename=os.path.join(logdir, 'training.log')),
+            logging.FileHandler(filename=os.path.join(logdir, 'record.log')),
             logging.StreamHandler(sys.stdout)
         ]
     )
@@ -119,3 +121,4 @@ def plot_confusion_matrix(all_labels, all_preds, class_names, title):
     plt.xlabel('Predicted label')
 
     return figure, cm[0][0], cm[1][0], cm[0][1], cm[1][1]
+

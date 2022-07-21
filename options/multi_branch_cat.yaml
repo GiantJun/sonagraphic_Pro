@@ -24,7 +24,6 @@ basic:
 
 options:
     ultrasound_dataset:
-        img_size: [175,300]
         split_for_valid: true # if kfold>1, it will be ignored
         
         kfold: 1

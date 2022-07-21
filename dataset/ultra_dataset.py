@@ -6,6 +6,13 @@ from PIL import Image
 
 class UltrasoundDataset(Dataset):
     """自定义 Dataset 类"""
+    # 预先运行本文件计算好的 mean 和 std
+    mean_RGB = (0.3215154, 0.32233492, 0.3232533)
+    std_RGB = (0.1990278, 0.19854955, 0.19809964)
+    mean_gray = 0.3505138
+    std_gray = 0.21441448
+
+    img_size = (175,300) # 读入数据时的图片尺寸
     
     def __init__(self, root, transform=None, select_list=list(range(0,9)),dataset_type='train', ret_path=False):
         """

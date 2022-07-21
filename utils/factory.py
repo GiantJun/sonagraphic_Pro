@@ -2,6 +2,7 @@ from methods.sonagraph_finetune import Sonagraph_Finetune
 from methods.test_model import TestModel
 from methods.emsemble_test_vote import Multi_Vote_Test
 from methods.emsemble_test_avg import Multi_Avg_Test
+from methods.gen_grad_cam import Gen_Grad_CAM
 
 def get_trainer(trainer_id, args, seed):
     name = args['method'].lower()
@@ -13,6 +14,8 @@ def get_trainer(trainer_id, args, seed):
         return Multi_Vote_Test(trainer_id, args, seed)
     elif name == 'emsemble_test_avg':
         return Multi_Avg_Test(trainer_id, args, seed)
+    elif name == 'gen_grad_cam':
+        return Gen_Grad_CAM(trainer_id, args, seed)
     else:
         raise NotImplementedError('Unknown method {}'.format(name))
 

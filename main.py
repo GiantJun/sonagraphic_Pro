@@ -6,6 +6,7 @@ import torch
 from utils.factory import get_trainer
 import os
 import logging
+import re
 
 def setup_parser():
     parser = argparse.ArgumentParser(description='Reproduce of multiple continual learning algorthms.')
@@ -55,10 +56,14 @@ if __name__ == '__main__':
     try:
         if 'test' == args['method']:
             saved_dict = torch.load(args['pretrain_path'])
+            logging.info('Info in pretrain dict (without state_dict)')
+            for key, value in saved_dict.items():
+                if not key == 'state_dict':
+                    logging.info('{} : {}'.format(key, value))
+
             save_name = os.path.basename(os.path.dirname(args['pretrain_path']))
             args.update({'pretrained': True,
                     'kfold': 1,
-                    'img_size':saved_dict['img_size'], 
                     'select_list':saved_dict['select_list'],
                     'backbone': saved_dict['backbone'],
                     'seed': saved_dict['seed'],
@@ -68,9 +73,9 @@ if __name__ == '__main__':
 
             tblog = set_logger(args, ret_tblog=False, rename=False) # 若出现重名文件夹时，直接覆盖掉原来的内容
             
-            data_loaders, class_num, class_names = get_dataloader(args)
+            data_loaders, class_num, class_names, img_size = get_dataloader(args)
             test_dataloaders = {'valid':data_loaders['valid'][0], 'test':data_loaders['test'][0]}
-            args.update({'class_num':class_num, 'class_names':class_names})
+            args.update({'class_num':class_num, 'class_names':class_names, 'img_size':img_size})
             seed = saved_dict['seed']
             print_args(args, seed)
             set_random(seed)
@@ -93,11 +98,42 @@ if __name__ == '__main__':
             trainer = get_trainer(0, args, seed)
             trainer.train_model(None, tblog)
             trainer.after_train(None, tblog)
+        elif 'gen_grad_cam' in args['method']:
+            saved_dict = torch.load(args['pretrain_path'])
+            save_name = os.path.basename(os.path.dirname(args['pretrain_path']))
+            args.update({'pretrained': True,
+                    'kfold': 1,
+                    'select_list':saved_dict['select_list'],
+                    'backbone': saved_dict['backbone'],
+                    'seed': saved_dict['seed'],
+                    'base_backbone': saved_dict['base_backbone'] if 'base_backbone' in args else None,
+                    'batch_size': 16, # 防止报错
+                    'split_for_valid': False, # 为了同时测试 内部测试集 和 外部测试集
+                    'save_name':save_name}) # 测试结果目录与模型所在目录同名
+            
+            tblog = set_logger(args, ret_tblog=False, rename=False) # 若出现重名文件夹时，直接覆盖掉原来的内容
+            logging.info('Info in pretrain dict (without state_dict)')
+            for key, value in saved_dict.items():
+                if not key == 'state_dict':
+                    logging.info('{} : {}'.format(key, value))
+                    
+            data_loaders, class_num, class_names, img_size = get_dataloader(args)
+            # test_dataloaders = {'valid':data_loaders['valid'][0], 'test':data_loaders['test'][0]}
+            args.update({'class_num':class_num, 'class_names':class_names, 'img_size':img_size})
+            seed = saved_dict['seed']
+            print_args(args, seed)
+            set_random(seed)
+
+            trainer_id = re.search('\d+', os.path.basename(args['pretrain_path'])).group()
+            trainer = get_trainer(trainer_id, args, seed)
+            trainer.train_model(None, tblog)
+            trainer.after_train(None, tblog)
+
         else:
             tblog = set_logger(args, ret_tblog=True, rename=True)
             # 准备数据集
-            data_loaders, class_num, class_names = get_dataloader(args)
-            args.update({'class_num':class_num, 'class_names':class_names})
+            data_loaders, class_num, class_names, img_size = get_dataloader(args)
+            args.update({'class_num':class_num, 'class_names':class_names, 'img_size':img_size})
             
             for seed in args['seed']:
                 print_args(args, seed)

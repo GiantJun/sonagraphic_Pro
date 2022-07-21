@@ -9,11 +9,11 @@ basic:
     # split_for_valid: False (default)
 
     # Method Choises: 
-    method: test
+    method: gen_grad_cam
 
     pretrain_path: logs/finetune/res101_5fold_all/trainer4_model_dict_150.pkl
     
-    batch_size: 16
+    img_base_dir: /home/2021/yujun/Storage/ultrasound_dataset7-12/valid
     # save_name: test_multi_branch_cat_018
     
             

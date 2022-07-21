@@ -111,7 +111,7 @@ class Gen_Grad_CAM(Base):
             cv2.imwrite(join(output_dir,str(idx)+'.png'), cam_image)
             
             # 接着生成视频
-            cv2.putText(cam_image, 'model {} picuture {}'.format(self.trainer_id, idx), (30, 10), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, 
+            cv2.putText(cam_image, 'model {} picuture {}'.format(self.trainer_id, idx), (10, 20), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, 
                     color=(123,222,238), thickness=1, lineType=cv2.LINE_AA)
             # 使用原图大小,即不进行resize
             # cv2.putText(cam_image, 'fold %d picuture %d' % (index,idx), (400, 30), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.7, 

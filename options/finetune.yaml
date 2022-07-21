@@ -18,7 +18,7 @@ basic:
     freeze: false
     save_models: true # if true, programm will save model's weights during incremental train
 
-    save_name: res101_5fold_all_test
+    save_name: res101_5fold_all
 
 options:
     ultrasound_dataset:

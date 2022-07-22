@@ -13,7 +13,7 @@ import torch
 import imageio
 from pytorch_grad_cam import GradCAM
 from pytorch_grad_cam.utils.image import show_cam_on_image
-from utils.toolkit import makedirs
+from utils.toolkit import check_makedirs
 from torchvision.models import ResNet
 from dataset.ultra_dataset import UltrasoundDataset
 import numpy as np
@@ -53,7 +53,7 @@ class Gen_Grad_CAM(Base):
             image_no = basename(input_image_dir)
             image_class = basename(dirname(input_image_dir))
             save_dir = join(self.grad_save_dir,image_class, image_no)
-            makedirs(save_dir)
+            check_makedirs(save_dir)
 
             if isinstance(self.network, ResNet):
                 target_layer = self.network.layer4[-1]
@@ -86,7 +86,7 @@ class Gen_Grad_CAM(Base):
         name_list.sort()
         # output_dir = join(output_base_dir,'model_%d' % index)
         output_dir = output_base_dir
-        makedirs(output_dir)
+        check_makedirs(output_dir)
         for img_name in name_list:
             img_position, extension = splitext(img_name)
             if int(img_position) in self.select_list:

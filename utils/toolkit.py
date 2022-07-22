@@ -20,10 +20,7 @@ def set_logger(args, ret_tblog=True, rename=True) -> SummaryWriter:
         print('{} has already exist, use {} instead'.format(logdir, logdir+nowTime))
         logdir += nowTime
     args.update({'logdir':logdir})
-    try:
-        os.makedirs(logdir)
-    except:
-        pass
+    check_makedirs(logdir)
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s [%(filename)s] => %(message)s',
@@ -37,7 +34,7 @@ def set_logger(args, ret_tblog=True, rename=True) -> SummaryWriter:
     else:
         return None
 
-def makedirs(path):
+def check_makedirs(path):
     if not os.path.exists(path):
         os.makedirs(path)
 

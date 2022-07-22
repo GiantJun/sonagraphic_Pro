@@ -27,18 +27,18 @@ def get_dataloader(args):
             ids_labels = np.array([target[i] for i in train_ids])
             train_ids, valid_ids, _, _  = train_test_split(train_ids, ids_labels, test_size=0.1, random_state=0, stratify=ids_labels)
 
-            logging.info('Fold {}: valid indexs {}'.format(fold, valid_ids))
-            logging.info('Fold {}: test indexs {}'.format(fold, test_ids))
-            logging.info('-' * 50)
+            # logging.info('Fold {}: valid indexs {}'.format(fold, valid_ids))
+            # logging.info('Fold {}: test indexs {}'.format(fold, test_ids))
+            # logging.info('-' * 50)
 
             train_subsampler = SubsetRandomSampler(train_ids)
             valid_subsampler = SubsetRandomSampler(valid_ids)
 
             # trainset, testset = torch.utils.data.random_split(dataset, [train_size, test_size])
-            train_dataloaders.append(DataLoader(dataset.train_dataset, batch_size=args['batch_size'], num_workers=args['num_workers']))
-            valid_dataloaders.append(DataLoader(dataset.train_dataset, batch_size=args['batch_size'], num_workers=args['num_workers']))
+            train_dataloaders.append(DataLoader(dataset.train_dataset, batch_size=args['batch_size'], sampler=train_subsampler, num_workers=args['num_workers']))
+            valid_dataloaders.append(DataLoader(dataset.train_dataset, batch_size=args['batch_size'], sampler=valid_subsampler, num_workers=args['num_workers']))
             # 注意此处dataloader加载的是验证集数据
-            test_dataloaders.append(DataLoader(dataset.test_dataset, batch_size=args['batch_size'], num_workers=args['num_workers']))
+            test_dataloaders.append(DataLoader(dataset.valid_dataset, batch_size=args['batch_size'], num_workers=args['num_workers']))
     else:
         if args['split_for_valid']:
             train_ids, valid_ids, _, _  = train_test_split(np.arange(len(target)), target, test_size=0.1, random_state=0, stratify=target)

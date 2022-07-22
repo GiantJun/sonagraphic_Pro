@@ -1,7 +1,7 @@
 ######### Basic Settings #########
 basic:
     prefix: reproduce
-    device: '1'
+    device: '0'
     seed: [0] 
     num_workers: 8
 
@@ -24,8 +24,8 @@ options:
     ultrasound_dataset:
         split_for_valid: true # if kfold>1, it will be ignored
         
-        kfold: 5
-        epochs: 2
+        kfold: 3
+        epochs: 150
         batch_size: 16
 
         lrate: 0.0001

@@ -1,7 +1,7 @@
 ######### Basic Settings #########
 basic:
     prefix: reproduce
-    device: '0'
+    device: '6'
     seed: [0] 
     num_workers: 8
 
@@ -12,31 +12,33 @@ basic:
     method: finetune
 
     # Backbone Choises: resnet18, resnet18_cbam, resnet50, resnet101
-    backbone: resnet101
+    backbone: resnet152
     pretrained: true
     # pretrain_path: pretrain_models/imagenet200_resnet18_cbam_pretrained.pth
     freeze: false
     save_models: true # if true, programm will save model's weights during incremental train
 
-    save_name: res101_5fold_all
+    save_name: res152_all
 
 options:
     ultrasound_dataset:
         split_for_valid: true # if kfold>1, it will be ignored
         
-        kfold: 3
-        epochs: 150
+        kfold: 1
+        epochs: 200 # 150
         batch_size: 16
 
         lrate: 0.0001
         opt_type: adam
 
         scheduler: multi_step # cos
-        milestones: [40, 80, 120]
+        # milestones: [40, 80, 120]
+        milestones: [40, 80, 120, 160]
         lrate_decay: 0.1 
 
         criterion: ce
 
+        # select_list: [8]
         # select_list: [0, 1, 8]
         # select_list: [0, 1, 2, 3, 8]
         select_list: [0, 1, 2, 3, 4, 5, 6, 7, 8]

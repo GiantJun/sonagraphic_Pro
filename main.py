@@ -56,10 +56,6 @@ if __name__ == '__main__':
     try:
         if 'test' == args['method']:
             saved_dict = torch.load(args['pretrain_path'])
-            logging.info('Info in pretrain dict (without state_dict)')
-            for key, value in saved_dict.items():
-                if not key == 'state_dict':
-                    logging.info('{} : {}'.format(key, value))
 
             save_name = os.path.basename(os.path.dirname(args['pretrain_path']))
             args.update({'pretrained': True,
@@ -72,6 +68,11 @@ if __name__ == '__main__':
                     'save_name':save_name}) # 测试结果目录与模型所在目录同名
 
             tblog = set_logger(args, ret_tblog=False, rename=False) # 若出现重名文件夹时，直接覆盖掉原来的内容
+
+            logging.info('Info in pretrain dict (without state_dict)')
+            for key, value in saved_dict.items():
+                if not key == 'state_dict':
+                    logging.info('{} : {}'.format(key, value))
             
             data_loaders, class_num, class_names, img_size = get_dataloader(args)
             test_dataloaders = {'valid':data_loaders['valid'][0], 'test':data_loaders['test'][0]}
@@ -116,7 +117,7 @@ if __name__ == '__main__':
             for key, value in saved_dict.items():
                 if not key == 'state_dict':
                     logging.info('{} : {}'.format(key, value))
-                    
+
             data_loaders, class_num, class_names, img_size = get_dataloader(args)
             # test_dataloaders = {'valid':data_loaders['valid'][0], 'test':data_loaders['test'][0]}
             args.update({'class_num':class_num, 'class_names':class_names, 'img_size':img_size})

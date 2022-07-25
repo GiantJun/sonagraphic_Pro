@@ -1,7 +1,7 @@
 ######### Basic Settings #########
 basic:
     prefix: reproduce
-    device: '6'
+    device: '1'
     seed: [0] 
     num_workers: 8
 
@@ -20,13 +20,13 @@ basic:
     freeze: false
     save_models: true # if true, programm will save model's weights during incremental train
 
-    save_name: multi_branch_cat_5fold_all
+    save_name: multi_branch_cat_all
 
 options:
     ultrasound_dataset:
         split_for_valid: true # if kfold>1, it will be ignored
         
-        kfold: 5
+        kfold: 1
         epochs: 150
         batch_size: 16
 

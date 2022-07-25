@@ -46,7 +46,7 @@ class TestModel(Base):
             precision = tn / (tn + fn)
             specificity = tp / (tp + fn)
             logging.info('===== Evaluate valid set result ======')
-            logging.info('acc = {:.4f} , precision = {:.4f} , recall = {:.4f} , specificity = {:.4f}'.format(acc, precision, recall, specificity))
+            logging.info('acc = {:.4f} , auc = {:.4f} , precision = {:.4f} , recall = {:.4f} , specificity = {:.4f}'.format(acc, roc_auc, precision, recall, specificity))
 
         # test        
         all_preds, all_labels, all_scores = self.get_output(dataloaders['test'])

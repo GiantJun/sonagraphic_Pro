@@ -1,7 +1,7 @@
 ######### Basic Settings #########
 basic:
     prefix: reproduce
-    device: '3'
+    device: '0'
     seed: [0] 
     num_workers: 8
 
@@ -11,7 +11,6 @@ basic:
     # Method Choises: 
     method: finetune
 
-    # Backbone Choises: resnet18, resnet18_cbam, resnet50, resnet101
     backbone: multi_branch_sum
     base_backbone: resnet18
 
@@ -20,13 +19,13 @@ basic:
     freeze: false
     save_models: true # if true, programm will save model's weights during incremental train
 
-    save_name: multi_branch_sum_5fold_all
+    save_name: multi_branch_sum_all
 
 options:
     ultrasound_dataset:
         split_for_valid: true # if kfold>1, it will be ignored
         
-        kfold: 5
+        kfold: 1
         epochs: 150
         batch_size: 16
 

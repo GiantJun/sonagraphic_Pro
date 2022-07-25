@@ -3,6 +3,7 @@ from os.path import join, splitext
 from os import listdir
 from torch import cat
 from PIL import Image
+import logging
 
 class UltrasoundDataset(Dataset):
     """自定义 Dataset 类"""
@@ -69,10 +70,11 @@ class UltrasoundDataset(Dataset):
                 # img_dirs.sort()
                 self.data.extend([join(class_dir, image_dir) for image_dir in img_dirs])
                 self.target.extend([idx for i in range(len(img_dirs))])
+                logging.info('{}-{}-{} : {}'.format(dataset_type, idx, self.class_names[idx], len(img_dirs)))
         else:
             raise ValueError('No dataset type {} , dataset type must in [\'train\',\'test\']'.format(dataset_type))
         
-        print('0-{} 1-{}'.format(self.class_names[0],self.class_names[1]))
+        
         
     # def get_XY(self):
     #     x, y = zip(*(self.item_list))

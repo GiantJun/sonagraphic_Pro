@@ -56,6 +56,7 @@ class Base(object):
 
         # 根据 valid dataset 挑选模型
         best_valid = 0.
+        best_train = 0.
         best_model_wts = copy.deepcopy(self.network.state_dict())
         best_epoch = 0
 
@@ -86,9 +87,11 @@ class Base(object):
                 test_acc = self.compute_accuracy(self.network, dataloaders['test'])
                 info = 'Epoch {}/{} => Loss {:.3f}, Train_accy {:.2f}, Valid_accy {:.2f}, Test_accy {:.2f}'.format(
                 epoch+1, self.epochs, train_loss, train_acc, valid_acc, test_acc)
-                if epoch > 30 and valid_acc > best_valid:
+                if epoch > 35 and (valid_acc > best_valid or 
+                    (best_valid == valid_acc and train_acc > best_train)):
                     best_model_wts = copy.deepcopy(self.network.state_dict())
                     best_valid = valid_acc
+                    best_train = train_acc
                     best_epoch = epoch
             elif train_acc is None:
                 info = 'Epoch {}/{} => Loss {:.3f}'.format(
@@ -100,14 +103,7 @@ class Base(object):
                 
             logging.info(info)
 
-            # 不采用隔步保存模型的方式
-            # if self.save_models and (epoch % 100 == 0 or epoch==self.epochs-1) and epoch > 0:
-            #     if dataloaders['valid'] != None and not ('moco' in self.method):
-            #         self.save_checkpoint('trainer{}_model_dict_{}'.format(self.trainer_id, epoch+1), state_dict=best_model_wts)
-            #         logging.info('save model dict from best valid model')
-            #     else:
-            #         self.save_checkpoint('trainer{}_model_dict_{}'.format(self.trainer_id, epoch), copy.deepcopy(self.network).cpu())
-            #         logging.info('save model dict from current model')
+            # 不采用隔步保存模型的方式ict from current model')
         
         self.save_checkpoint('trainer{}_model_dict'.format(self.trainer_id), state_dict=best_model_wts)
         logging.info('save model dict from best valid model')

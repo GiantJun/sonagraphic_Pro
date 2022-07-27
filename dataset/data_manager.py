@@ -1,6 +1,5 @@
 import numpy as np
 from torchvision import transforms
-import os
 from PIL import Image
 from torch.utils.data import Dataset
 from dataset import myTransform
@@ -11,6 +10,9 @@ from sklearn.model_selection import StratifiedKFold
 from torch.utils.data import SubsetRandomSampler, DataLoader
 from sklearn.model_selection import train_test_split
 import logging
+from os import environ
+from os.path import join
+
 
 def get_dataloader(args):
 
@@ -61,8 +63,12 @@ def get_dataloader(args):
 
 def get_data(dataset_name):
     name = dataset_name.lower()
-    if name == 'ultrasound_dataset':
-        return Sonagraph()
+    if name == 'ultrasound_dataset1':
+        logging.info('applying 括约肌数据集')
+        return Sonagraph1()
+    elif name == 'ultrasound_dataset2':
+        logging.info('applying 肛提肌数据集')
+        return Sonagraph2()
     else:
         raise ValueError('Unknown dataset {}.'.format(dataset_name))
 
@@ -91,7 +97,7 @@ class iData(object):
     test_tf = None
     class_num = None
 
-class Sonagraph(iData):
+class Sonagraph1(iData):
     img_size = UltrasoundDataset.img_size
 
     # 训练数据集对象
@@ -112,15 +118,43 @@ class Sonagraph(iData):
             transforms.Normalize(UltrasoundDataset.mean_gray, UltrasoundDataset.std_gray)])
 
     def download_data(self, select_list):
-        # or replay os.environ['xxx'] with './data/'
-        self.train_dataset = UltrasoundDataset(os.environ['ALTRASOUND7_12'], transform=self.train_tf, select_list=select_list, dataset_type='train')
-        self.valid_dataset = UltrasoundDataset(os.environ['ALTRASOUND7_12'], transform=self.test_tf, select_list=select_list, dataset_type='valid')
-        self.test_dataset = UltrasoundDataset(os.environ['ALTRASOUND7_12'], transform=self.test_tf, select_list=select_list, dataset_type='test')
+        # or replay environ['xxx'] with './data/'
+        self.train_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_7-13'), transform=self.train_tf, select_list=select_list, dataset_type='train')
+        self.valid_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_7-13'), transform=self.test_tf, select_list=select_list, dataset_type='test1')
+        self.test_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_7-13'), transform=self.test_tf, select_list=select_list, dataset_type='test2')
+
+        self.class_num = self.train_dataset.class_num
+        self.class_names = self.train_dataset.class_names
+
+class Sonagraph2(iData):
+    img_size = UltrasoundDataset.img_size
+
+    # 训练数据集对象
+    train_tf = transforms.Compose([
+            transforms.ColorJitter(brightness=0.15, contrast=0.15, saturation=0.15, hue=0.1),
+            transforms.RandomHorizontalFlip(),
+            transforms.RandomRotation(5),
+            myTransform.AddPepperNoise(0.95, p=0.5),
+            transforms.Resize(img_size),
+            transforms.Grayscale(num_output_channels=1),
+            transforms.ToTensor(),
+            transforms.Normalize(UltrasoundDataset.mean_gray, UltrasoundDataset.std_gray)])  # 此处的 mean 和 std 由
+
+    test_tf = transforms.Compose([
+            transforms.Resize(img_size),
+            transforms.Grayscale(num_output_channels=1),
+            transforms.ToTensor(),
+            transforms.Normalize(UltrasoundDataset.mean_gray, UltrasoundDataset.std_gray)])
+
+    def download_data(self, select_list):
+        # or replay environ['xxx'] with './data/'
+        self.train_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound2_7-25'), transform=self.train_tf, select_list=select_list, dataset_type='train')
+        self.valid_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound2_7-25'), transform=self.test_tf, select_list=select_list, dataset_type='test1')
+        self.test_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound2_7-25'), transform=self.test_tf, select_list=select_list, dataset_type='test2')
 
         self.class_num = self.train_dataset.class_num
         self.class_names = self.train_dataset.class_names
         
-       
 
 def pil_loader(path):
     '''

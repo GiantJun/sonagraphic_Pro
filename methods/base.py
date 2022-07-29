@@ -4,6 +4,7 @@ from torch.nn import functional as F
 from tqdm import tqdm
 import torch.optim as optim
 import logging
+from utils.config import Config
 from utils.toolkit import count_parameters
 from os.path import join
 import copy
@@ -11,41 +12,42 @@ from torch import nn
 from utils.losses import FocalLoss
 
 class Base(object):
-    def __init__(self, trainer_id, args, seed):
+    def __init__(self, trainer_id:int, config:Config, seed:int):
+        self.config = config
         self.trainer_id = trainer_id
-        
-        self.class_names = args['class_names'] if 'class_names' in args else None
-        self.img_size = args['img_size'] if 'img_size' in args else None
-
-        self.multiple_gpus = list(range(len(args['device'].split(','))))
-        self.method = args['method']
-        self.epochs = args['epochs'] if 'epochs' in args else None
-        self.lrate = args['lrate'] if 'lrate' in args else None
-
+        # basic config
+        self.multiple_gpus = list(range(len(config.device.split(','))))
+        self.method = config.method
+        self.save_models = config.save_models
+        self.save_dir = config.logdir
         self.seed = seed
-        self.backbone = args['backbone'] if 'backbone' in args else None
+        self.backbone = config.backbone
+        self.freeze = config.freeze
+        self.select_list = config.select_list
 
-        self.opt_type = args['opt_type'] if 'opt_type' in args else None
+        # training config
+        self.class_names = config.class_names
+        self.img_size = config.img_size
+        self.epochs = config.epochs
+        self.lrate = config.lrate
+        
+        self.opt_type = config.opt_type
         if self.opt_type == 'sgd':
-            self.weight_decay = args['weight_decay']
-
-        self.scheduler = args['scheduler'] if 'scheduler' in args else None
+            self.weight_decay = config.weight_decay
+        
+        self.scheduler = config.scheduler
         if self.scheduler == 'multi_step':
-            self.milestones = args['milestones']
-            self.lrate_decay = args['lrate_decay']
+            self.milestones = config.milestones
+            self.lrate_decay = config.lrate_decay
         
-        self.network = None
-        self.save_models = args['save_models'] if 'scheduler' in args else None
-        self.save_dir = args['logdir']
-
-        if 'criterion' in args:
-            if args['criterion'] == 'ce':
+        if hasattr(config, 'criterion'):
+            if config.criterion == 'ce':
                 self.criterion = nn.CrossEntropyLoss()
-            elif args['criterion'] == 'focal':
-                self.criterion = FocalLoss(args['gamma'],args['alpha'])
+            elif config.criterion == 'focal':
+                self.criterion = FocalLoss(config.gamma,config.alpha)
 
-        self.freeze = False if not 'freeze' in args else args['freeze']
-        
+        self.network = None
+
 
     def train_model(self, dataloaders, tblog, valid_epoch=1):
 
@@ -168,9 +170,8 @@ class Base(object):
             save_dict = state_dict
         else:
             save_dict = model.state_dict()
-        torch.save({
-            'state_dict': save_dict,
-            'backbone': self.backbone
-            }, save_path)
+        save_dict = {'state_dict': save_dict}
+        save_dict.update(self.config.get_basic_config())
+        torch.save(save_dict, save_path)
         logging.info('model state dict saved at: {}'.format(save_path))
 

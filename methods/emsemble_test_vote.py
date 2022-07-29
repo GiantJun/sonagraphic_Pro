@@ -3,9 +3,8 @@ from methods.base import Base
 import logging
 from backbones.network import get_model
 import torch
-from tqdm import tqdm
-from torch.nn.functional import softmax
-from utils.toolkit import plot_confusion_matrix, plot_ROC_curve
+from utils.config import Config
+from utils.toolkit import plot_confusion_matrix
 from utils.toolkit import count_parameters
 from os.path import join
 from os import listdir
@@ -13,37 +12,33 @@ import copy
 from dataset.data_manager import get_dataloader
 
 class Multi_Vote_Test(Base):
-    def __init__(self, trainer_id, args, seed):
-        super().__init__(trainer_id, args, seed)
-        file_names = listdir(args['pretrain_dir'])
+    def __init__(self, trainer_id:int, config:Config, seed:int):
+        super().__init__(trainer_id, config, seed)
+        file_names = listdir(config.pretrain_dir)
         file_names.sort()
         pretrain_paths = []
         self.networks = []
 
-        self.batch_size = args['batch_size']
+        self.batch_size = config.batch_size
 
         for item in file_names:
             if item.endswith('.pkl'):
-                pretrain_paths.append(join(args['pretrain_dir'], item))
+                pretrain_paths.append(join(config.pretrain_dir, item))
 
         valid_dataloaders, test_dataloaders = [], []
         for pretrain_path in pretrain_paths:
-            temp_args = copy.deepcopy(args)
+            temp_config = copy.deepcopy(config)
             saved_dict = torch.load(pretrain_path)
-            temp_args.update({
-                'select_list':saved_dict['select_list'],
-                'backbone': saved_dict['backbone'],
-                'base_backbone': saved_dict['base_backbone'] if 'base_backbone' in args else None,
-                'pretrain_path': pretrain_path
-            })
+            temp_config.load_basic_config(saved_dict)
+            
 
-            data_loaders, class_num, class_names = get_dataloader(temp_args)
+            data_loaders, class_num, class_names = get_dataloader(temp_config)
             test_dataloaders.append(data_loaders['test'][0].__iter__())
             valid_dataloaders.append(data_loaders['valid'][0].__iter__())
 
-            temp_args.update({'class_num':class_num, 'class_names':class_names})
+            temp_config.update({'class_num':class_num, 'class_names':class_names})
 
-            network = get_model(temp_args).eval()
+            network = get_model(temp_config).eval()
             for name, param in network.named_parameters():
                 param.requires_grad = False
                 # logging.info("{} require grad={}".format(name, param.requires_grad))

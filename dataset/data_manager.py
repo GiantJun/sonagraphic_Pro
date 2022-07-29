@@ -14,16 +14,16 @@ from os import environ
 from os.path import join
 
 
-def get_dataloader(args):
+def get_dataloader(config):
 
-    dataset = get_data(args['dataset'])
-    dataset.download_data(args['select_list'])
+    dataset = get_data(config.dataset)
+    dataset.download_data(config.select_list)
     
     target = dataset.train_dataset.target
     train_dataloaders, valid_dataloaders, test_dataloaders = [], [], []
     
-    if args['kfold'] > 1: # kfold 默认在 kfold 中划分验证集
-        kfold = StratifiedKFold(n_splits=args['kfold'], shuffle=True, random_state=0)
+    if config.kfold > 1: # kfold 默认在 kfold 中划分验证集
+        kfold = StratifiedKFold(n_splits=config.kfold, shuffle=True, random_state=0)
         for fold, (train_ids, test_ids) in enumerate(kfold.split(np.arange(len(target)), target)):
             # 再将训练集划分为训练集和选择参数的验证集
             ids_labels = np.array([target[i] for i in train_ids])
@@ -37,26 +37,26 @@ def get_dataloader(args):
             valid_subsampler = SubsetRandomSampler(valid_ids)
 
             # trainset, testset = torch.utils.data.random_split(dataset, [train_size, test_size])
-            train_dataloaders.append(DataLoader(dataset.train_dataset, batch_size=args['batch_size'], sampler=train_subsampler, num_workers=args['num_workers']))
-            valid_dataloaders.append(DataLoader(dataset.train_dataset, batch_size=args['batch_size'], sampler=valid_subsampler, num_workers=args['num_workers']))
+            train_dataloaders.append(DataLoader(dataset.train_dataset, batch_size=config.batch_size, sampler=train_subsampler, num_workers=config.num_workers))
+            valid_dataloaders.append(DataLoader(dataset.train_dataset, batch_size=config.batch_size, sampler=valid_subsampler, num_workers=config.num_workers))
             # 注意此处dataloader加载的是验证集数据
-            test_dataloaders.append(DataLoader(dataset.valid_dataset, batch_size=args['batch_size'], num_workers=args['num_workers']))
+            test_dataloaders.append(DataLoader(dataset.valid_dataset, batch_size=config.batch_size, num_workers=config.num_workers))
     else:
-        if args['split_for_valid']:
+        if config.split_for_valid:
             train_ids, valid_ids, _, _  = train_test_split(np.arange(len(target)), target, test_size=0.1, random_state=0, stratify=target)
 
             train_subsampler = SubsetRandomSampler(train_ids)
             valid_subsampler = SubsetRandomSampler(valid_ids)
 
             # trainset, testset = torch.utils.data.random_split(dataset, [train_size, test_size])
-            train_dataloaders.append(DataLoader(dataset.train_dataset, batch_size=args['batch_size'], sampler=train_subsampler, num_workers=args['num_workers']))
-            valid_dataloaders.append(DataLoader(dataset.train_dataset, batch_size=args['batch_size'], sampler=valid_subsampler, num_workers=args['num_workers']))
+            train_dataloaders.append(DataLoader(dataset.train_dataset, batch_size=config.batch_size, sampler=train_subsampler, num_workers=config.num_workers))
+            valid_dataloaders.append(DataLoader(dataset.train_dataset, batch_size=config.batch_size, sampler=valid_subsampler, num_workers=config.num_workers))
             # 注意此处dataloader加载的是验证集数据，作为内部测试集
-            test_dataloaders.append(DataLoader(dataset.valid_dataset, batch_size=args['batch_size'], num_workers=args['num_workers']))
+            test_dataloaders.append(DataLoader(dataset.valid_dataset, batch_size=config.batch_size, num_workers=config.num_workers))
         else:
-            train_dataloaders.append(DataLoader(dataset.train_dataset, batch_size=args['batch_size'], num_workers=args['num_workers']))
-            valid_dataloaders.append(DataLoader(dataset.valid_dataset, batch_size=args['batch_size'], num_workers=args['num_workers']))
-            test_dataloaders.append(DataLoader(dataset.test_dataset, batch_size=args['batch_size'], num_workers=args['num_workers']))
+            train_dataloaders.append(DataLoader(dataset.train_dataset, batch_size=config.batch_size, num_workers=config.num_workers))
+            valid_dataloaders.append(DataLoader(dataset.valid_dataset, batch_size=config.batch_size, num_workers=config.num_workers))
+            test_dataloaders.append(DataLoader(dataset.test_dataset, batch_size=config.batch_size, num_workers=config.num_workers))
 
     return {'train':train_dataloaders, 'valid':valid_dataloaders, 'test':test_dataloaders}, dataset.class_num, dataset.class_names, dataset.img_size
 

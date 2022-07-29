@@ -9,11 +9,11 @@ from utils.toolkit import plot_confusion_matrix, plot_ROC_curve
 from os.path import join
 
 class Sonagraph_Finetune(Base):
-    def __init__(self, trainer_id, args, seed):
-        super().__init__(trainer_id, args, seed)
-        self.base_backbone = args['base_backbone'] if 'base_backbone' in args else None
-        self.network = get_model(args)
-        self.select_list = args['select_list']
+    def __init__(self, trainer_id, config, seed):
+        super().__init__(trainer_id, config, seed)
+        self.base_backbone = config.base_backbone
+        self.network = get_model(config)
+        
 
         if self.freeze:
             for name, param in self.network.named_parameters():
@@ -90,21 +90,6 @@ class Sonagraph_Finetune(Base):
         
         return all_preds, all_labels, all_scores
 
-    def save_checkpoint(self, filename, model=None, state_dict=None):
-        save_path = join(self.save_dir, filename+'.pkl')
-        if state_dict != None:
-            save_dict = state_dict
-        else:
-            save_dict = model.state_dict()
-        torch.save({
-            'state_dict': save_dict,
-            'backbone': self.backbone,
-            'select_list': self.select_list,
-            'img_size': self.img_size,
-            'seed': self.seed,
-            'base_backbone': self.base_backbone
-            }, save_path)
-        logging.info('model state dict saved at: {}'.format(save_path))
         
         
 

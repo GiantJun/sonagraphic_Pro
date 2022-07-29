@@ -7,24 +7,8 @@ from utils.factory import get_trainer
 import os
 import logging
 import re
-
-def setup_parser():
-    parser = argparse.ArgumentParser(description='Reproduce of multiple continual learning algorthms.')
-    parser.add_argument('--config', type=str, default='',
-                        help='yaml file of settings.')
-    return parser
-
-def load_yaml(settings_path):
-    args = {}
-    with open(settings_path) as data_file:
-        param = yaml.load(data_file, Loader=yaml.FullLoader)
-    args.update(param['basic'])
-    dataset = args['dataset']
-    if 'options' in param:
-        args.update(param['options'][dataset])
-    if 'special' in param:
-        args.update(param['special'])
-    return args
+from utils.config import Config
+import copy
 
 def set_random(seed):
     torch.manual_seed(seed)
@@ -33,116 +17,75 @@ def set_random(seed):
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 
-def print_args(args, seed):
-    # log hyperparameter
-    logging.info(30*"=")
-    logging.info("log hyperparameters in seed {}".format(seed))
-    logging.info(30*"-")
-    # args = dict(sorted(args.items()))
-    for key, value in args.items():
-        logging.info('{}: {}'.format(key, value))
-    logging.info(30*"=")
 
 if __name__ == '__main__':
-    args = setup_parser().parse_args()
-    param = load_yaml(args.config)
-    args = vars(args)  # Converting argparse Namespace to a dict.
-    args.update(param)  # Add parameters from json
-    if not 'pretrain_path' in args:
-        args['pretrain_path'] = None
+    config = Config()
 
-    os.environ['CUDA_VISIBLE_DEVICES']=args['device']
+    os.environ['CUDA_VISIBLE_DEVICES']=config.device
 
     try:
-        if 'test' == args['method']:
-            saved_dict = torch.load(args['pretrain_path'])
-
-            save_name = os.path.basename(os.path.dirname(args['pretrain_path']))
-            args.update({'pretrained': True,
-                    'kfold': 1,
-                    'select_list':saved_dict['select_list'],
-                    'backbone': saved_dict['backbone'],
-                    'seed': saved_dict['seed'],
-                    'base_backbone': saved_dict['base_backbone'] if 'base_backbone' in args else None,
-                    'split_for_valid': False, # 为了同时测试 内部测试集 和 外部测试集
-                    'save_name':save_name}) # 测试结果目录与模型所在目录同名
-
-            tblog = set_logger(args, ret_tblog=False, rename=False) # 若出现重名文件夹时，直接覆盖掉原来的内容
-
-            logging.info('Info in pretrain dict (without state_dict)')
-            for key, value in saved_dict.items():
-                if not key == 'state_dict':
-                    logging.info('{} : {}'.format(key, value))
+        if 'test' == config.method:
+            saved_dict = torch.load(config.pretrain_path)
+            config.load_basic_config(saved_dict)
             
-            data_loaders, class_num, class_names, img_size = get_dataloader(args)
+            tblog = set_logger(config, ret_tblog=False, rename=False) # 若出现重名文件夹时，直接覆盖掉原来的内容
+            
+            data_loaders, class_num, class_names, img_size = get_dataloader(config)
             test_dataloaders = {'valid':data_loaders['valid'][0], 'test':data_loaders['test'][0]}
-            args.update({'class_num':class_num, 'class_names':class_names, 'img_size':img_size})
+            config.update({'class_num':class_num, 'class_names':class_names, 'img_size':img_size})
             seed = saved_dict['seed']
-            print_args(args, seed)
+            config.print_config()
             set_random(seed)
-            trainer = get_trainer(0, args, seed)
+
+            trainer_id = re.search('\d+', os.path.basename(config.pretrain_path)).group()
+            trainer = get_trainer(trainer_id, config, seed)
             trainer.train_model(test_dataloaders, tblog)
             trainer.after_train(test_dataloaders, tblog)
 
-        elif 'emsemble_test' in args['method']:
-            save_name = os.path.basename(args['pretrain_dir'])
-            args.update({'pretrained': True,
-                    'kfold': 1,
-                    'split_for_valid': False, # 为了同时测试 内部测试集 和 外部测试集
-                    'save_name':save_name}) # 测试结果目录与模型所在目录同名
+        elif 'emsemble_test' in config.method:
+            config.update({'save_name': os.path.basename(config.pretrain_dir)})
 
-            tblog = set_logger(args, ret_tblog=False, rename=False) # 若出现重名文件夹时，直接覆盖掉原来的内容
+            tblog = set_logger(config, ret_tblog=False, rename=False) # 若出现重名文件夹时，直接覆盖掉原来的内容
             
             seed = 0
-            print_args(args, seed)
+            config.print_config()
             set_random(seed)
-            trainer = get_trainer(0, args, seed)
+            trainer = get_trainer(0, config, seed)
             trainer.train_model(None, tblog)
             trainer.after_train(None, tblog)
-        elif 'gen_grad_cam' in args['method']:
-            saved_dict = torch.load(args['pretrain_path'])
-            save_name = os.path.basename(os.path.dirname(args['pretrain_path']))
-            args.update({'pretrained': True,
-                    'kfold': 1,
-                    'select_list':saved_dict['select_list'],
-                    'backbone': saved_dict['backbone'],
-                    'seed': saved_dict['seed'],
-                    'base_backbone': saved_dict['base_backbone'] if 'base_backbone' in args else None,
-                    'batch_size': 16, # 防止报错
-                    'split_for_valid': False, # 为了同时测试 内部测试集 和 外部测试集
-                    'save_name':save_name}) # 测试结果目录与模型所在目录同名
+        elif 'gen_grad_cam' in config.method:
+            saved_dict = torch.load(config.pretrain_path)
+            config.load_basic_config(saved_dict)
             
-            tblog = set_logger(args, ret_tblog=False, rename=False) # 若出现重名文件夹时，直接覆盖掉原来的内容
-            logging.info('Info in pretrain dict (without state_dict)')
-            for key, value in saved_dict.items():
-                if not key == 'state_dict':
-                    logging.info('{} : {}'.format(key, value))
+            tblog = set_logger(config, ret_tblog=False, rename=False) # 若出现重名文件夹时，直接覆盖掉原来的内容
 
-            data_loaders, class_num, class_names, img_size = get_dataloader(args)
+            data_loaders, class_num, class_names, img_size = get_dataloader(config)
             # test_dataloaders = {'valid':data_loaders['valid'][0], 'test':data_loaders['test'][0]}
-            args.update({'class_num':class_num, 'class_names':class_names, 'img_size':img_size})
-            seed = saved_dict['seed']
-            print_args(args, seed)
+            config.update({'class_num':class_num, 'class_names':class_names, 'img_size':img_size})
+            seed = config.seed
+            config.print_config()
             set_random(seed)
 
-            trainer_id = re.search('\d+', os.path.basename(args['pretrain_path'])).group()
-            trainer = get_trainer(trainer_id, args, seed)
+            trainer_id = re.search('\d+', os.path.basename(config.pretrain_path)).group()
+            trainer = get_trainer(trainer_id, config, seed)
             trainer.train_model(None, tblog)
             trainer.after_train(None, tblog)
 
         else:
-            tblog = set_logger(args, ret_tblog=True, rename=True)
+            tblog = set_logger(config, ret_tblog=True, rename=True)
             # 准备数据集
-            data_loaders, class_num, class_names, img_size = get_dataloader(args)
-            args.update({'class_num':class_num, 'class_names':class_names, 'img_size':img_size})
+            data_loaders, class_num, class_names, img_size = get_dataloader(config)
+            config.update({'class_num':class_num, 'class_names':class_names, 'img_size':img_size})
             
-            for seed in args['seed']:
-                print_args(args, seed)
+            for seed in config.seed:
+                temp_config = copy.deepcopy(config)
+                temp_config.update({'seed':seed})
+                temp_config.print_config()
                 set_random(seed)
-                for idx in range(args['kfold']):
+                for idx in range(temp_config.kfold):
                     logging.info('='*10+' fold {} '.format(idx)+'='*10)
                     fold_dataloaders = {'train':data_loaders['train'][idx], 'valid':data_loaders['valid'][idx], 'test':data_loaders['test'][idx]}
-                    trainer = get_trainer(idx, args, seed)
+                    trainer = get_trainer(idx, temp_config, seed)
                     trainer.train_model(fold_dataloaders, tblog)
                     trainer.after_train(fold_dataloaders, tblog)
 

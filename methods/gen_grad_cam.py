@@ -3,6 +3,7 @@ from methods.base import Base
 import logging
 from backbones.network import get_model
 import torch
+from utils.config import Config
 from utils.toolkit import count_parameters
 from os.path import join, basename, dirname, splitext
 from os import listdir
@@ -19,14 +20,14 @@ from dataset.ultra_dataset import UltrasoundDataset
 import numpy as np
 
 class Gen_Grad_CAM(Base):
-    def __init__(self, trainer_id, args, seed):
-        super().__init__(trainer_id, args, seed)
-        self.imput_base_dir = args['img_base_dir']
-        self.grad_save_dir = join(args['logdir'], 'grad_cam')
-        self.select_list = args['select_list']
-        self.img_size = args['img_size']
+    def __init__(self, trainer_id:int, config:Config, seed:int):
+        super().__init__(trainer_id, config, seed)
+        self.imput_base_dir = config.img_base_dir
+        self.grad_save_dir = join(config.logdir, 'grad_cam')
+        self.select_list = config.select_list
+        self.img_size = config.img_size
 
-        self.network = get_model(args)
+        self.network = get_model(config)
 
         # for name, param in self.network.named_parameters():
         #     param.requires_grad = False

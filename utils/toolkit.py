@@ -10,16 +10,16 @@ from itertools import product
 
 
 
-def set_logger(args, ret_tblog=True, rename=True) -> SummaryWriter:
+def set_logger(config, ret_tblog=True, rename=True) -> SummaryWriter:
     nowTime = datetime.datetime.now().strftime('_%Y-%m-%d-%H-%M-%S')
-    if not 'save_name' in args:
-        logdir = 'logs/{}/'.format(args['method'])+'{}_{}_{}_{}_{}'.format(args['backbone'], args['dataset'], args['img_size'], args['opt_type'], args['criterion'])
+    if config.save_name == None:
+        logdir = 'logs/{}/'.format(config.method)+'{}_{}_{}_{}'.format(config.backbone, config.dataset, config.opt_type, config.criterion)
     else:
-        logdir = 'logs/{}/'.format(args['method'])+args['save_name']
+        logdir = 'logs/{}/'.format(config.method)+config.save_name
     if os.path.exists(logdir) and rename: # rename 用于判断，若出现重名文件夹时，是否创建一个新的
         print('{} has already exist, use {} instead'.format(logdir, logdir+nowTime))
         logdir += nowTime
-    args.update({'logdir':logdir})
+    config.update({'logdir':logdir})
     check_makedirs(logdir)
     logging.basicConfig(
         level=logging.INFO,

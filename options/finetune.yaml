@@ -1,31 +1,36 @@
 ######### Basic Settings #########
 basic:
-    prefix: reproduce
     device: '6'
     seed: [0] 
     num_workers: 8
 
     # Dataset Choises: ultrasound_dataset
     dataset: ultrasound_dataset2
+    split_for_valid: true # if kfold>1, it will be ignored
+    kfold: 1
 
     # Method Choises: 
     method: finetune
 
     # Backbone Choises: resnet18, resnet18_cbam, resnet50, resnet101
-    backbone: resnet101
+    backbone: resnet18
     pretrained: true
     # pretrain_path: pretrain_models/imagenet200_resnet18_cbam_pretrained.pth
     freeze: false
+
+    # select_list: [0]
+    # select_list: [0, 1, 8]
+    # select_list: [0, 1, 2, 3, 8]
+    select_list: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+
     save_models: true # if true, programm will save model's weights during incremental train
 
-    save_name: res101_all_dataset2
+    save_name: resnet18_test
 
 options:
     ultrasound_dataset2:
-        split_for_valid: true # if kfold>1, it will be ignored
         
-        kfold: 1
-        epochs: 150 # 150
+        epochs: 1 # 150
         batch_size: 16
 
         lrate: 0.0001
@@ -38,7 +43,4 @@ options:
 
         criterion: ce
 
-        # select_list: [8]
-        # select_list: [0, 1, 8]
-        # select_list: [0, 1, 2, 3, 8]
-        select_list: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+        

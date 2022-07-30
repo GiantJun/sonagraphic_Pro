@@ -69,6 +69,12 @@ def get_data(dataset_name):
     elif name == 'ultrasound_dataset2':
         logging.info('applying 肛提肌数据集')
         return Sonagraph2()
+    elif name == 'ultrasound_dataset1_224':
+        logging.info('applying 括约肌数据集 224x224')
+        return Sonagraph1_224x224()
+    elif name == 'ultrasound_dataset2_224':
+        logging.info('applying 肛提肌数据集 224x224')
+        return Sonagraph2_224x224()
     else:
         raise ValueError('Unknown dataset {}.'.format(dataset_name))
 
@@ -151,6 +157,64 @@ class Sonagraph2(iData):
         self.train_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound2_7-25'), transform=self.train_tf, select_list=select_list, dataset_type='train')
         self.valid_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound2_7-25'), transform=self.test_tf, select_list=select_list, dataset_type='test1')
         self.test_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound2_7-25'), transform=self.test_tf, select_list=select_list, dataset_type='test2')
+
+        self.class_num = self.train_dataset.class_num
+        self.class_names = self.train_dataset.class_names
+
+class Sonagraph1_224x224(iData):
+    img_size = (224,224)
+
+    # 训练数据集对象
+    train_tf = transforms.Compose([
+            transforms.ColorJitter(brightness=0.15, contrast=0.15, saturation=0.15, hue=0.1),
+            transforms.RandomHorizontalFlip(),
+            transforms.RandomRotation(5),
+            myTransform.AddPepperNoise(0.95, p=0.5),
+            transforms.Resize(img_size),
+            transforms.Grayscale(num_output_channels=1),
+            transforms.ToTensor(),
+            transforms.Normalize(UltrasoundDataset.mean_gray, UltrasoundDataset.std_gray)])  # 此处的 mean 和 std 由
+
+    test_tf = transforms.Compose([
+            transforms.Resize(img_size),
+            transforms.Grayscale(num_output_channels=1),
+            transforms.ToTensor(),
+            transforms.Normalize(UltrasoundDataset.mean_gray, UltrasoundDataset.std_gray)])
+
+    def download_data(self, select_list):
+        # or replay environ['xxx'] with './data/'
+        self.train_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_224_7-13'), transform=self.train_tf, select_list=select_list, dataset_type='train')
+        self.valid_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_224_7-13'), transform=self.test_tf, select_list=select_list, dataset_type='test1')
+        self.test_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_224_7-13'), transform=self.test_tf, select_list=select_list, dataset_type='test2')
+
+        self.class_num = self.train_dataset.class_num
+        self.class_names = self.train_dataset.class_names
+
+class Sonagraph2_224x224(iData):
+    img_size = (224,224)
+
+    # 训练数据集对象
+    train_tf = transforms.Compose([
+            transforms.ColorJitter(brightness=0.15, contrast=0.15, saturation=0.15, hue=0.1),
+            transforms.RandomHorizontalFlip(),
+            transforms.RandomRotation(5),
+            myTransform.AddPepperNoise(0.95, p=0.5),
+            transforms.Resize(img_size),
+            transforms.Grayscale(num_output_channels=1),
+            transforms.ToTensor(),
+            transforms.Normalize(UltrasoundDataset.mean_gray, UltrasoundDataset.std_gray)])  # 此处的 mean 和 std 由
+
+    test_tf = transforms.Compose([
+            transforms.Resize(img_size),
+            transforms.Grayscale(num_output_channels=1),
+            transforms.ToTensor(),
+            transforms.Normalize(UltrasoundDataset.mean_gray, UltrasoundDataset.std_gray)])
+
+    def download_data(self, select_list):
+        # or replay environ['xxx'] with './data/'
+        self.train_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound2_224_7-25'), transform=self.train_tf, select_list=select_list, dataset_type='train')
+        self.valid_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound2_224_7-25'), transform=self.test_tf, select_list=select_list, dataset_type='test1')
+        self.test_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound2_224_7-25'), transform=self.test_tf, select_list=select_list, dataset_type='test2')
 
         self.class_num = self.train_dataset.class_num
         self.class_names = self.train_dataset.class_names

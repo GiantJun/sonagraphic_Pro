@@ -13,7 +13,7 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             // "args": ["--config","options/retrain.yaml"]
-            "args": ["--config","options/test.yaml"]
+            "args": ["--config","options/finetune.yaml"]
         }
     ]
 }

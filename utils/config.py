@@ -30,6 +30,7 @@ class Config:
         parser.add_argument('--split_for_valid', type=bool, default=False)
         parser.add_argument('--kfold', type=int, default=1)
         parser.add_argument('--backbone', type=str, default=None)
+        parser.add_argument('--mlp_num', type=int, default=None)
         parser.add_argument('--pretrained', type=bool, default=False)
         parser.add_argument('--pretrain_path', type=str, default=None)
         parser.add_argument('--freeze', type=bool, default=False)

@@ -27,7 +27,7 @@ class Config:
         parser.add_argument('--seed', nargs='+', type=int, default=0)
         parser.add_argument('--num_workers', type=int, default=0)
         parser.add_argument('--dataset', type=str, default=None)
-        parser.add_argument('--split_for_valid', type=bool, default=False)
+        parser.add_argument('--split_for_valid', type=bool, default=None)
         parser.add_argument('--kfold', type=int, default=1)
         parser.add_argument('--backbone', type=str, default=None)
         parser.add_argument('--mlp_num', type=int, default=None)
@@ -43,8 +43,8 @@ class Config:
 
         # training config
         parser.add_argument('--epochs', type=int, default=1)
-        parser.add_argument('--batch_size', type=int, default=16)
-        parser.add_argument('--lrate', type=float, default=0.1)
+        parser.add_argument('--batch_size', type=int, default=None)
+        parser.add_argument('--lrate', type=float, default=None)
         parser.add_argument('--opt_type', type=str, default=None)
         parser.add_argument('--scheduler', type=str, default=None)
         parser.add_argument('--milestones', nargs='+', type=int, default=None)

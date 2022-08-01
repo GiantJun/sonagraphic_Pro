@@ -11,9 +11,9 @@ basic:
     # Method Choises: 
     method: test
 
-    pretrain_path: logs/dataset1/emsemble2/res101_trainer0_model_dict.pkl
+    pretrain_path: logs/finetune/multi_branch_sum_all_dataset1/trainer0_model_dict.pkl
 
-    get_roc_auc: True
+    get_roc_auc: true
     
     batch_size: 16
     # save_name: test_multi_branch_cat_018

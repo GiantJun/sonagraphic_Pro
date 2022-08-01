@@ -16,7 +16,7 @@ class Finetune(Base):
 
         if self.freeze:
             for name, param in self.network.named_parameters():
-                if not 'fc' in name:
+                if not ('fc' in name or 'classifier' in name or 'heads' in name):
                     param.requires_grad = False
                 logging.info("{} require grad={}".format(name, param.requires_grad))
 

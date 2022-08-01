@@ -1,4 +1,5 @@
 import argparse
+from numpy import int64
 import yaml
 import logging
 
@@ -43,7 +44,10 @@ class Config:
         parser.add_argument('--get_mistake', type=bool, default=False)
 
         # special config
-        parser.add_argument('--base_backbone', type=str, default=None)
+        parser.add_argument('--base_backbone', type=str, default=None) # multi_branch
+        parser.add_argument('--T', type=float, default=None) # simclr and moco
+        parser.add_argument('--K', type=int64, default=None) # moco
+        parser.add_argument('--m', type=float, default=None) # moco
 
         # training config
         parser.add_argument('--epochs', type=int, default=1)
@@ -64,7 +68,7 @@ class Config:
                 setattr(self, name, value)
             print('Loaded config file: {}'.format(self.config))
     
-    def get_basic_config(self) -> dict:
+    def get_save_config(self) -> dict:
         result = {}
         for item in self.basic_config_names:
             result.update({item:getattr(self, item)})

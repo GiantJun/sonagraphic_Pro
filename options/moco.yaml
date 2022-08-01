@@ -1,0 +1,50 @@
+######### Basic Settings #########
+basic:
+    device: '0'
+    seed: [0] 
+    num_workers: 8
+
+    # Dataset Choises: ultrasound_dataset
+    dataset: twoview_ultrasound_dataset1
+    split_for_valid: true # if kfold>1, it will be ignored
+    kfold: 1
+
+    # Method Choises: mocoV2, simclr
+    method: mocoV2
+
+    # Backbone Choises: resnet18, resnet18_cbam, resnet50, resnet101, efficientnet_b5, vit_b_16, vit_b_32,
+    # vit_l_16, vit_l_32
+    backbone: resnet50
+    pretrained: true
+    # pretrain_path: pretrain_models/imagenet200_resnet18_cbam_pretrained.pth
+    freeze: false
+
+    # select_list: [0]
+    # select_list: [0, 1, 8]
+    # select_list: [0, 1, 2, 3, 8]
+    select_list: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+
+    save_models: true # if true, programm will save model's weights during incremental train
+
+    save_name: mocoV_resnet50_all_dataset1
+
+special:
+    T: 0.07 # for moco and simclr
+    K: 2048 # for moco
+    m: 0.999 # for moco
+
+options:
+    twoview_ultrasound_dataset1:
+        
+        epochs: 500 # 150
+        batch_size: 16
+
+        lrate: 0.0001
+        opt_type: adam
+
+        scheduler: multi_step # cos
+        # milestones: [40, 80, 120]
+        milestones: [40, 80, 120, 160, 200, 240, 280, 320, 360, 400, 440, 480]
+        lrate_decay: 0.1 
+
+        criterion: ce

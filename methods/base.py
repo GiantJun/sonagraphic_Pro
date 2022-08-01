@@ -10,10 +10,11 @@ from os.path import join
 import copy
 from torch import nn
 from utils.losses import FocalLoss
+import copy
 
 class Base(object):
     def __init__(self, trainer_id:int, config:Config, seed:int):
-        self.config = config
+        self.config = copy.deepcopy(config)
         self.trainer_id = trainer_id
         # basic config
         self.multiple_gpus = list(range(len(config.device.split(','))))
@@ -85,7 +86,7 @@ class Base(object):
                 tblog.add_scalar('trainer{}_seed{}_train/acc'.format(self.trainer_id, self.seed), train_acc, epoch)
             tblog.add_scalar('trainer{}_seed{}_train/loss'.format(self.trainer_id, self.seed), train_loss, epoch)
 
-            if epoch % valid_epoch == 0 and dataloaders['valid'] != None and not ('mocov2' in self.method):
+            if epoch % valid_epoch == 0 and dataloaders['valid'] != None and not (self.method in ['mocoV2', 'simclr']):
                 valid_acc = self.compute_accuracy(self.network, dataloaders['valid'])
                 test_acc = self.compute_accuracy(self.network, dataloaders['test'])
                 info = 'Epoch {}/{} => Loss {:.3f}, Train_accy {:.2f}, Valid_accy {:.2f}, Test_accy {:.2f}'.format(
@@ -97,21 +98,22 @@ class Base(object):
                     best_train = train_acc
                     best_epoch = epoch
             elif train_acc is None:
-                info = 'Epoch {}/{} => Loss {:.3f}'.format(
-                epoch+1, self.epochs, train_loss)
+                # 仅训练特征提取器的方法, 隔步保存模型的方式ict
+                info = 'Epoch {}/{} => Loss {:.3f}'.format(epoch+1, self.epochs, train_loss)
+                if (epoch % 100 == 0 and epoch != 0) or epoch == self.epochs-1:
+                    self.save_checkpoint('model_dict_{}'.format(epoch+1), copy.deepcopy(self.network).cpu())
+                    logging.info('save model dict from current model')
             else:
                 test_acc = self.compute_accuracy(self.network, dataloaders['test'])
                 info = 'Epoch {}/{} => Loss {:.3f}, Train_accy {:.2f}, Test_accy {:.2f}'.format(
                 epoch+1, self.epochs, train_loss, train_acc, test_acc)
                 
             logging.info(info)
-
-            # 不采用隔步保存模型的方式ict from current model')
         
         self.save_checkpoint('trainer{}_model_dict'.format(self.trainer_id), state_dict=best_model_wts)
         logging.info('save model dict from best valid model')
             
-        if dataloaders['valid'] != None and not ('mocov2' in self.method):
+        if dataloaders['valid'] != None and not ('moco' in self.method or 'simclr' in self.method):
             logging.info('Best model was selected in epoch {} with valid acc={}'.format(best_epoch, best_valid))
             self.network.load_state_dict(best_model_wts)
 
@@ -168,11 +170,11 @@ class Base(object):
     def save_checkpoint(self, filename, model=None, state_dict=None):
         save_path = join(self.save_dir, filename+'.pkl')
         if state_dict != None:
-            save_dict = state_dict
+            model_dict = state_dict
         else:
-            save_dict = model.state_dict()
-        save_dict = {'state_dict': save_dict}
-        save_dict.update(self.config.get_basic_config())
+            model_dict = model.state_dict()
+        save_dict = {'state_dict': model_dict}
+        save_dict.update(self.config.get_save_config())
         torch.save(save_dict, save_path)
         logging.info('model state dict saved at: {}'.format(save_path))
 

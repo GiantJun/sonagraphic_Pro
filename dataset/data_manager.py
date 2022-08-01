@@ -37,7 +37,7 @@ def get_dataloader(config):
             valid_subsampler = SubsetRandomSampler(valid_ids)
 
             # trainset, testset = torch.utils.data.random_split(dataset, [train_size, test_size])
-            train_dataloaders.append(DataLoader(dataset.train_dataset, batch_size=config.batch_size, sampler=train_subsampler, num_workers=config.num_workers))
+            train_dataloaders.append(DataLoader(dataset.train_dataset, batch_size=config.batch_size, drop_last=True, sampler=train_subsampler, num_workers=config.num_workers))
             valid_dataloaders.append(DataLoader(dataset.train_dataset, batch_size=config.batch_size, sampler=valid_subsampler, num_workers=config.num_workers))
             # 注意此处dataloader加载的是验证集数据
             test_dataloaders.append(DataLoader(dataset.valid_dataset, batch_size=config.batch_size, num_workers=config.num_workers))
@@ -49,12 +49,12 @@ def get_dataloader(config):
             valid_subsampler = SubsetRandomSampler(valid_ids)
 
             # trainset, testset = torch.utils.data.random_split(dataset, [train_size, test_size])
-            train_dataloaders.append(DataLoader(dataset.train_dataset, batch_size=config.batch_size, sampler=train_subsampler, num_workers=config.num_workers))
+            train_dataloaders.append(DataLoader(dataset.train_dataset, batch_size=config.batch_size, drop_last=True, sampler=train_subsampler, num_workers=config.num_workers))
             valid_dataloaders.append(DataLoader(dataset.train_dataset, batch_size=config.batch_size, sampler=valid_subsampler, num_workers=config.num_workers))
             # 注意此处dataloader加载的是验证集数据，作为内部测试集
             test_dataloaders.append(DataLoader(dataset.valid_dataset, batch_size=config.batch_size, num_workers=config.num_workers))
         else:
-            train_dataloaders.append(DataLoader(dataset.train_dataset, batch_size=config.batch_size, num_workers=config.num_workers))
+            train_dataloaders.append(DataLoader(dataset.train_dataset, batch_size=config.batch_size, drop_last=True, num_workers=config.num_workers))
             valid_dataloaders.append(DataLoader(dataset.valid_dataset, batch_size=config.batch_size, num_workers=config.num_workers))
             test_dataloaders.append(DataLoader(dataset.test_dataset, batch_size=config.batch_size, num_workers=config.num_workers))
 
@@ -66,6 +66,9 @@ def get_data(dataset_name):
     if name == 'ultrasound_dataset1':
         logging.info('applying 括约肌数据集')
         return Sonagraph1()
+    elif name == 'twoview_ultrasound_dataset1':
+        logging.info('applying two view 肛提肌数据集')
+        return TwoView_Sonagraph1()
     elif name == 'ultrasound_dataset2':
         logging.info('applying 肛提肌数据集')
         return Sonagraph2()
@@ -132,35 +135,6 @@ class Sonagraph1(iData):
         self.class_num = self.train_dataset.class_num
         self.class_names = self.train_dataset.class_names
 
-class Sonagraph2(iData):
-    img_size = UltrasoundDataset.img_size
-
-    # 训练数据集对象
-    train_tf = transforms.Compose([
-            transforms.ColorJitter(brightness=0.15, contrast=0.15, saturation=0.15, hue=0.1),
-            transforms.RandomHorizontalFlip(),
-            transforms.RandomRotation(5),
-            myTransform.AddPepperNoise(0.95, p=0.5),
-            transforms.Resize(img_size),
-            transforms.Grayscale(num_output_channels=1),
-            transforms.ToTensor(),
-            transforms.Normalize(UltrasoundDataset.mean_gray, UltrasoundDataset.std_gray)])  # 此处的 mean 和 std 由
-
-    test_tf = transforms.Compose([
-            transforms.Resize(img_size),
-            transforms.Grayscale(num_output_channels=1),
-            transforms.ToTensor(),
-            transforms.Normalize(UltrasoundDataset.mean_gray, UltrasoundDataset.std_gray)])
-
-    def download_data(self, select_list):
-        # or replay environ['xxx'] with './data/'
-        self.train_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound2_7-25'), transform=self.train_tf, select_list=select_list, dataset_type='train')
-        self.valid_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound2_7-25'), transform=self.test_tf, select_list=select_list, dataset_type='test1')
-        self.test_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound2_7-25'), transform=self.test_tf, select_list=select_list, dataset_type='test2')
-
-        self.class_num = self.train_dataset.class_num
-        self.class_names = self.train_dataset.class_names
-
 class Sonagraph1_224x224(iData):
     img_size = (224,224)
 
@@ -186,6 +160,47 @@ class Sonagraph1_224x224(iData):
         self.train_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_224_7-13'), transform=self.train_tf, select_list=select_list, dataset_type='train')
         self.valid_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_224_7-13'), transform=self.test_tf, select_list=select_list, dataset_type='test1')
         self.test_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_224_7-13'), transform=self.test_tf, select_list=select_list, dataset_type='test2')
+
+        self.class_num = self.train_dataset.class_num
+        self.class_names = self.train_dataset.class_names
+
+class TwoView_Sonagraph1(Sonagraph1):
+    img_size = UltrasoundDataset.img_size
+
+    def download_data(self, select_list):
+        # or replay environ['xxx'] with './data/'
+        self.train_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_7-13'), transform=self.train_tf, select_list=select_list, dataset_type='train', ret2Views=True)
+        self.valid_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_7-13'), transform=self.test_tf, select_list=select_list, dataset_type='test1')
+        self.test_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_7-13'), transform=self.test_tf, select_list=select_list, dataset_type='test2')
+
+        self.class_num = self.train_dataset.class_num
+        self.class_names = self.train_dataset.class_names
+
+class Sonagraph2(iData):
+    img_size = UltrasoundDataset.img_size
+
+    # 训练数据集对象
+    train_tf = transforms.Compose([
+            transforms.ColorJitter(brightness=0.15, contrast=0.15, saturation=0.15, hue=0.1),
+            transforms.RandomHorizontalFlip(),
+            transforms.RandomRotation(5),
+            myTransform.AddPepperNoise(0.95, p=0.5),
+            transforms.Resize(img_size),
+            transforms.Grayscale(num_output_channels=1),
+            transforms.ToTensor(),
+            transforms.Normalize(UltrasoundDataset.mean_gray, UltrasoundDataset.std_gray)])  # 此处的 mean 和 std 由
+
+    test_tf = transforms.Compose([
+            transforms.Resize(img_size),
+            transforms.Grayscale(num_output_channels=1),
+            transforms.ToTensor(),
+            transforms.Normalize(UltrasoundDataset.mean_gray, UltrasoundDataset.std_gray)])
+
+    def download_data(self, select_list):
+        # or replay environ['xxx'] with './data/'
+        self.train_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound2_7-25'), transform=self.train_tf, select_list=select_list, dataset_type='train')
+        self.valid_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound2_7-25'), transform=self.test_tf, select_list=select_list, dataset_type='test1')
+        self.test_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound2_7-25'), transform=self.test_tf, select_list=select_list, dataset_type='test2')
 
         self.class_num = self.train_dataset.class_num
         self.class_names = self.train_dataset.class_names

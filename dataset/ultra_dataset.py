@@ -15,7 +15,7 @@ class UltrasoundDataset(Dataset):
 
     img_size = (175,300) # 读入数据时的图片尺寸
     
-    def __init__(self, root, transform=None, select_list=list(range(0,9)),dataset_type='train', ret_path=False):
+    def __init__(self, root, transform=None, select_list=list(range(0,9)),dataset_type='train', ret_path=False, ret2Views=False):
         """
         输入：root_dir：数据子集的根目录
         dataset_type如果为“test”则会获取测试集数据
@@ -32,6 +32,7 @@ class UltrasoundDataset(Dataset):
         |-- class1
         """
         self.transform = transform
+        self.return2View = ret2Views
         
         self.data = []
         self.target = []
@@ -92,12 +93,17 @@ class UltrasoundDataset(Dataset):
         img_dir, label = self.data[idx], self.target[idx]
         name_list = listdir(img_dir)
         tensor_list = []
+        tensor_list2 = []
         for item in name_list:
             img_position, extension = splitext(item)
             if int(img_position) in self.select_list:    # 只读入相应位置的图片
                 img = Image.open(join(img_dir,item))
                 tensor_list.append(self.transform(img))
+                if self.return2View:
+                    tensor_list2.append(self.transform(img))
         result = cat(tensor_list, dim=0)
+        if self.return2View:
+            result = [result, cat(tensor_list2, dim=0)]
         if self.ret_path:
             return result, label, img_dir
         else:

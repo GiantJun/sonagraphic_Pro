@@ -2,6 +2,7 @@ from torch.nn import functional as F
 from backbones.moco_net import MoCoNet
 from backbones.simclr_net import SimCLRNet
 from backbones.sup_simclr_net import SupSimCLRNet
+from backbones.bal_sup_moco_netV2 import BalSupMoCoNet
 from methods.base import Base
 import torchvision.models as models
 from torch import nn
@@ -19,6 +20,10 @@ class Contrastive_Methods(Base):
             self.network = SimCLRNet(models.__dict__[config.backbone], batch_size=self.config.batch_size, input_channel=len(config.select_list), T=config.T)
         elif config.method == 'sup_simclr':
             self.network = SupSimCLRNet(models.__dict__[config.backbone], batch_size=self.config.batch_size, input_channel=len(config.select_list), T=config.T)
+        elif config.method == 'bal_sup_mocoV2':
+            self.network = BalSupMoCoNet(models.__dict__[config.backbone], batch_size=self.config.batch_size, input_channel=len(config.select_list), T=config.T)
+        else:
+            raise ValueError('Unknown method {}'.format(config.method))
         self.network = self.network.cuda()
         if len(self.multiple_gpus) > 1:
             self.network = nn.DataParallel(self.network, self.multiple_gpus)

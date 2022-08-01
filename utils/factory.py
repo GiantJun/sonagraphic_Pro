@@ -7,7 +7,7 @@ from methods.contrastive import Contrastive_Methods
 
 def get_trainer(trainer_id, config, seed):
     name = config.method.lower()
-    if name == 'finetune':
+    if name == 'finetune' or name == 'retrain':
         return Finetune(trainer_id, config, seed)
     elif name == 'test':
         return TestModel(trainer_id, config, seed)
@@ -17,8 +17,8 @@ def get_trainer(trainer_id, config, seed):
         return Multi_Avg_Test(trainer_id, config, seed)
     elif name == 'gen_grad_cam':
         return Gen_Grad_CAM(trainer_id, config, seed)
-    elif name in ['mocov2', 'sup_simclr', 'simclr']:
+    elif name in ['mocov2', 'sup_simclr', 'simclr', 'bal_sup_mocov2']:
         return Contrastive_Methods(trainer_id, config, seed)
     else:
-        raise NotImplementedError('Unknown method {}'.format(name))
+        raise ValueError('Unknown method {}'.format(name))
 

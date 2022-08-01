@@ -24,14 +24,17 @@ if __name__ == '__main__':
     os.environ['CUDA_VISIBLE_DEVICES']=config.device
 
     try:
-        if 'test' == config.method:
+        if 'test' == config.method or 'retrain' == config.method:
             saved_dict = torch.load(config.pretrain_path)
-            config.load_basic_config(saved_dict)
+            config.load_saved_config(saved_dict)
             
-            tblog = set_logger(config, ret_tblog=False, rename=False) # 若出现重名文件夹时，直接覆盖掉原来的内容
+            if config.method == 'test':
+                tblog = set_logger(config, ret_tblog=False, rename=False) # 若出现重名文件夹时，直接覆盖掉原来的内容
+            else:
+                tblog = set_logger(config, ret_tblog=True, rename=True)
             
             data_loaders, class_num, class_names, img_size = get_dataloader(config)
-            test_dataloaders = {'valid':data_loaders['valid'][0], 'test':data_loaders['test'][0]}
+            test_dataloaders = {'train':data_loaders['train'][0], 'valid':data_loaders['valid'][0], 'test':data_loaders['test'][0]}
             config.update({'class_num':class_num, 'class_names':class_names, 'img_size':img_size})
             seed = saved_dict['seed']
             config.print_config()
@@ -54,7 +57,7 @@ if __name__ == '__main__':
             trainer.after_train(None, tblog)
         elif 'gen_grad_cam' in config.method:
             saved_dict = torch.load(config.pretrain_path)
-            config.load_basic_config(saved_dict)
+            config.load_saved_config(saved_dict)
             
             tblog = set_logger(config, ret_tblog=False, rename=False) # 若出现重名文件夹时，直接覆盖掉原来的内容
 

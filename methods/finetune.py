@@ -18,7 +18,8 @@ class Finetune(Base):
             for name, param in self.network.named_parameters():
                 if not ('fc' in name or 'classifier' in name or 'heads' in name):
                     param.requires_grad = False
-                logging.info("{} require grad={}".format(name, param.requires_grad))
+                else:
+                    logging.info("{} require grad = True !".format(name))
 
         self.network = self.network.cuda()
         if len(self.multiple_gpus) > 1:

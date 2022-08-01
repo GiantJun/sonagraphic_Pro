@@ -10,7 +10,7 @@ basic:
     kfold: 1
 
     # Method Choises: mocoV2, simclr
-    method: mocoV2
+    method: bal_sup_mocoV2
 
     # Backbone Choises: resnet18, resnet18_cbam, resnet50, resnet101, efficientnet_b5, vit_b_16, vit_b_32,
     # vit_l_16, vit_l_32
@@ -26,7 +26,7 @@ basic:
 
     save_models: true # if true, programm will save model's weights during incremental train
 
-    save_name: mocoV2_resnet50_all_dataset1
+    save_name: mocoV_resnet50_all_dataset1
 
 special:
     T: 0.07 # for moco and simclr

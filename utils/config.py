@@ -38,7 +38,7 @@ class Config:
         parser.add_argument('--pretrained', type=bool, default=False)
         parser.add_argument('--pretrain_path', type=str, default=None)
         parser.add_argument('--freeze', type=bool, default=False)
-        parser.add_argument('--select_list', nargs='+', type=int, default=list(range(3)))
+        parser.add_argument('--select_list', nargs='+', type=int, default=None)
         parser.add_argument('--save_models', type=bool, default=False)
         parser.add_argument('--save_name', type=str, default=None)
         parser.add_argument('--get_roc_auc', type=bool, default=False)
@@ -51,13 +51,13 @@ class Config:
         parser.add_argument('--m', type=float, default=None) # moco
 
         # training config
-        parser.add_argument('--epochs', type=int, default=1)
+        parser.add_argument('--epochs', type=int, default=None)
         parser.add_argument('--batch_size', type=int, default=None)
         parser.add_argument('--lrate', type=float, default=None)
         parser.add_argument('--opt_type', type=str, default=None)
         parser.add_argument('--scheduler', type=str, default=None)
         parser.add_argument('--milestones', nargs='+', type=int, default=None)
-        parser.add_argument('--lrate_decay', type=float, default=0.1)
+        parser.add_argument('--lrate_decay', type=float, default=None)
         parser.add_argument('--criterion', type=str, default=None)
 
         for name, value in vars(parser.parse_args()).items():
@@ -77,14 +77,18 @@ class Config:
             result.update({item:getattr(self, item)})
         return result
     
-    def load_basic_config(self, init_dict: dict) -> None:
+    def load_saved_config(self, init_dict: dict) -> None:
         if 'state_dict' in init_dict:
             init_dict.pop('state_dict')
         for key, value in init_dict.items():
-            setattr(self, key, value)
-        self.kfold = 1
-        self.pretrained = True
-        self.split_for_valid = False
+            if getattr(self, key) == None:
+                setattr(self, key, value)
+        if self.method == 'test':
+            self.kfold = 1
+            self.pretrained = True
+            self.split_for_valid = False
+        elif self.method == 'retrain':
+            self.save_name = 'retrain_' + self.save_name
 
     def update(self, update_dict: dict) -> None:
         for key, value in update_dict.items():
@@ -92,7 +96,7 @@ class Config:
     
     @property
     def is_two_stage_method(self) -> bool:
-        return self.method in ['simclr', 'mocoV2', 'sup_simclr']
+        return self.method in ['simclr', 'mocoV2', 'sup_simclr', 'bal_sup_moco']
     
     def print_config(self) -> None:
         logging.info(30*"=")

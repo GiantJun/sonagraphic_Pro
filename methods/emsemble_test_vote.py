@@ -29,7 +29,7 @@ class Multi_Vote_Test(Base):
         for pretrain_path in pretrain_paths:
             temp_config = copy.deepcopy(config)
             saved_dict = torch.load(pretrain_path)
-            temp_config.load_basic_config(saved_dict)
+            temp_config.load_saved_config(saved_dict)
             temp_config.pretrain_path = pretrain_path
             temp_config.print_config()
 

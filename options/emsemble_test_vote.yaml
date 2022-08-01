@@ -11,7 +11,10 @@ basic:
     # Method Choises: 
     method: emsemble_test_vote
 
-    pretrain_dir: logs/finetune/res101_5fold_all
+    pretrain_dir: logs/dataset1/emsemble
+
+    get_roc_auc: true
+    
     
     batch_size: 16
     # save_name: test_multi_branch_cat_018

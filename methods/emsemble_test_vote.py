@@ -30,13 +30,13 @@ class Multi_Vote_Test(Base):
             temp_config = copy.deepcopy(config)
             saved_dict = torch.load(pretrain_path)
             temp_config.load_basic_config(saved_dict)
-            
+            temp_config.print_config()
 
-            data_loaders, class_num, class_names = get_dataloader(temp_config)
+            data_loaders, class_num, class_names, img_size = get_dataloader(temp_config)
             test_dataloaders.append(data_loaders['test'][0].__iter__())
             valid_dataloaders.append(data_loaders['valid'][0].__iter__())
 
-            temp_config.update({'class_num':class_num, 'class_names':class_names})
+            temp_config.update({'class_num':class_num, 'class_names':class_names, 'img_size': img_size})
 
             network = get_model(temp_config).eval()
             for name, param in network.named_parameters():

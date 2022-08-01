@@ -26,6 +26,8 @@ basic:
 
     save_models: true # if true, programm will save model's weights during incremental train
 
+    get_roc_auc: true
+
     save_name: resnet101_all_dataset1
 
 options:

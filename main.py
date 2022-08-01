@@ -48,7 +48,6 @@ if __name__ == '__main__':
             tblog = set_logger(config, ret_tblog=False, rename=False) # 若出现重名文件夹时，直接覆盖掉原来的内容
             
             seed = 0
-            config.print_config()
             set_random(seed)
             trainer = get_trainer(0, config, seed)
             trainer.train_model(None, tblog)

@@ -23,6 +23,8 @@ class Config:
         # basic config
         self.basic_config_names = ['device', 'seed', 'num_workers', 'dataset', 'split_for_valid', 'kfold',
                         'backbone', 'pretrained', 'freeze', 'select_list', 'save_models', 'save_name']
+        self.special_config_names = ['base_backbone']
+
         parser.add_argument('--device', nargs='+', type=int, default='-1')
         parser.add_argument('--seed', nargs='+', type=int, default=0)
         parser.add_argument('--num_workers', type=int, default=0)
@@ -37,6 +39,8 @@ class Config:
         parser.add_argument('--select_list', nargs='+', type=int, default=list(range(3)))
         parser.add_argument('--save_models', type=bool, default=False)
         parser.add_argument('--save_name', type=str, default=None)
+        parser.add_argument('--get_roc_auc', type=bool, default=False)
+        parser.add_argument('--get_mistake', type=bool, default=False)
 
         # special config
         parser.add_argument('--base_backbone', type=str, default=None)
@@ -64,6 +68,8 @@ class Config:
         result = {}
         for item in self.basic_config_names:
             result.update({item:getattr(self, item)})
+        for item in self.special_config_names:
+            result.update({item:getattr(self, item)})
         return result
     
     def load_basic_config(self, init_dict: dict) -> None:
@@ -84,7 +90,7 @@ class Config:
         logging.info("log hyperparameters in seed {}".format(self.seed))
         logging.info(30*"-")
         for name, value in vars(self).items():
-            if name != 'basic_config_names':
+            if name != 'basic_config_names' and name != 'basic_config_names':
                 logging.info('{}: {}'.format(name, value))
         logging.info(30*"=")
         

@@ -13,7 +13,6 @@ class Sonagraph_Finetune(Base):
         super().__init__(trainer_id, config, seed)
         self.base_backbone = config.base_backbone
         self.network = get_model(config)
-        
 
         if self.freeze:
             for name, param in self.network.named_parameters():
@@ -29,6 +28,7 @@ class Sonagraph_Finetune(Base):
     def after_train(self, dataloaders, tblog=None):
         # valid
         if not dataloaders['valid'] is None:
+            logging.info('===== Evaluate valid set result ======')
             all_preds, all_labels, all_scores = self.get_output(dataloaders['valid'])
 
             # 将 confusion matrix 和 ROC curve 输出到 tensorboard
@@ -36,15 +36,24 @@ class Sonagraph_Finetune(Base):
             cm_figure, tp, fp, fn, tn = plot_confusion_matrix(all_labels, all_preds, self.class_names, cm_name)
             if tblog is not None:
                 tblog.add_figure(cm_name, cm_figure)
-
+            
             acc = torch.sum(all_preds == all_labels).item() / len(all_labels)
-            recall = tn / (tn + fp)
-            precision = tn / (tn + fn)
-            specificity = tp / (tp + fn)
-            logging.info('===== Evaluate valid set result ======')
-            logging.info('acc = {:.4f} precision = {:.4f} , recall = {:.4f} , specificity = {:.4f}'.format(acc, precision, recall, specificity))
+
+            if self.get_roc_auc:
+                roc_name = self.method+'_'+self.backbone+"_valid_ROC_Curve"
+                roc_auc, roc_figure, opt_threshold, opt_point = plot_ROC_curve(all_labels, all_scores, self.class_names, roc_name)
+                if tblog is not None:
+                    tblog.add_figure(roc_name, roc_figure)
+
+                recall = tn / (tn + fp)
+                precision = tn / (tn + fn)
+                specificity = tp / (tp + fn)
+                logging.info('acc = {:.4f} , auc = {:.4f} , precision = {:.4f} , recall = {:.4f} , specificity = {:.4f}'.format(acc, roc_auc, precision, recall, specificity)) 
+            else:
+                logging.info('acc = {:.4f}'.format(acc))
 
         # test        
+        logging.info('===== Evaluate test set result ======')
         all_preds, all_labels, all_scores = self.get_output(dataloaders['test'])
 
         # 将 confusion matrix 和 ROC curve 输出到 tensorboard
@@ -53,19 +62,21 @@ class Sonagraph_Finetune(Base):
         if tblog is not None:
             tblog.add_figure(cm_name, cm_figure)
 
-        roc_name = self.method+'_'+self.backbone+"_test_ROC_Curve"
-        roc_auc, roc_figure, opt_threshold, opt_point = plot_ROC_curve(all_labels, all_scores, self.class_names, roc_name)
-        if tblog is not None:
-            tblog.add_figure(roc_name, roc_figure)
-
-        # 计算 precision 和 recall， 将 zero_division 置为0，使当 precision 为0时不出现warning
         acc = torch.sum(all_preds == all_labels).item() / len(all_labels)
-        recall = tn / (tn + fp)
-        precision = tn / (tn + fn)
-        specificity = tp / (tp + fn)
 
-        logging.info('===== Evaluate test set result ======')
-        logging.info('acc = {:.4f} , auc = {:.4f} , precision = {:.4f} , recall = {:.4f} , specificity = {:.4f}'.format(acc, roc_auc, precision, recall, specificity))
+        if self.get_roc_auc:
+            roc_name = self.method+'_'+self.backbone+"_test_ROC_Curve"
+            roc_auc, roc_figure, opt_threshold, opt_point = plot_ROC_curve(all_labels, all_scores, self.class_names, roc_name)
+            if tblog is not None:
+                tblog.add_figure(roc_name, roc_figure)
+
+            # 计算 precision 和 recall， 将 zero_division 置为0，使当 precision 为0时不出现warning
+            recall = tn / (tn + fp)
+            precision = tn / (tn + fn)
+            specificity = tp / (tp + fn)
+
+            logging.info('acc = {:.4f} , auc = {:.4f} , precision = {:.4f} , recall = {:.4f} , specificity = {:.4f}, opt_threshold = {}, opt_point = {}'.format(
+                    acc, roc_auc, precision, recall, specificity, opt_threshold, opt_point))
 
     def get_output(self, dataloader):
         self.network.eval()

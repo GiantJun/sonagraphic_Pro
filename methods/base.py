@@ -24,10 +24,11 @@ class Base(object):
         self.backbone = config.backbone
         self.freeze = config.freeze
         self.select_list = config.select_list
+        self.get_roc_auc = config.get_roc_auc
 
         # training config
-        self.class_names = config.class_names
-        self.img_size = config.img_size
+        self.class_names = config.class_names if hasattr(config, 'class_names') else None
+        self.img_size = config.img_size if hasattr(config, 'img_size') else None
         self.epochs = config.epochs
         self.lrate = config.lrate
         
@@ -40,7 +41,7 @@ class Base(object):
             self.milestones = config.milestones
             self.lrate_decay = config.lrate_decay
         
-        if hasattr(config, 'criterion'):
+        if config.criterion != None:
             if config.criterion == 'ce':
                 self.criterion = nn.CrossEntropyLoss()
             elif config.criterion == 'focal':

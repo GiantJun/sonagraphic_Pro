@@ -90,7 +90,7 @@ class Config:
         logging.info("log hyperparameters in seed {}".format(self.seed))
         logging.info(30*"-")
         for name, value in vars(self).items():
-            if name != 'basic_config_names' and name != 'basic_config_names':
+            if name != 'basic_config_names' and name != 'special_config_names':
                 logging.info('{}: {}'.format(name, value))
         logging.info(30*"=")
         

@@ -16,7 +16,7 @@ class TestModel(Base):
 
         for name, param in self.network.named_parameters():
             param.requires_grad = False
-            logging.info("{} require grad={}".format(name, param.requires_grad))
+            # logging.info("{} require grad={}".format(name, param.requires_grad))
 
         self.network = self.network.cuda()
         if len(self.multiple_gpus) > 1:

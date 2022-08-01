@@ -8,7 +8,7 @@ from torch.nn.functional import softmax
 from utils.toolkit import plot_confusion_matrix, plot_ROC_curve
 from os.path import join
 
-class Sonagraph_Finetune(Base):
+class Finetune(Base):
     def __init__(self, trainer_id, config, seed):
         super().__init__(trainer_id, config, seed)
         self.base_backbone = config.base_backbone

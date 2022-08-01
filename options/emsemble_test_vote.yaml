@@ -11,7 +11,7 @@ basic:
     # Method Choises: 
     method: emsemble_test_vote
 
-    pretrain_dir: logs/dataset1/emsemble
+    pretrain_dir: /home/2021/yujun/Storage/sonagraphic_pro/logs/dataset1/emsemble2
 
     get_roc_auc: true
     

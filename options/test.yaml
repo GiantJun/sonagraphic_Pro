@@ -11,7 +11,7 @@ basic:
     # Method Choises: 
     method: test
 
-    pretrain_path: logs/dataset1/emsemble/MB_cat_trainer0_model_dict.pkl
+    pretrain_path: logs/dataset1/emsemble2/res101_trainer0_model_dict.pkl
     
     batch_size: 16
     # save_name: test_multi_branch_cat_018

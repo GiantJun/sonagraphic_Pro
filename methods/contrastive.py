@@ -1,6 +1,7 @@
 from torch.nn import functional as F
 from backbones.moco_net import MoCoNet
 from backbones.simclr_net import SimCLRNet
+from backbones.sup_simclr_net import SupSimCLRNet
 from methods.base import Base
 import torchvision.models as models
 from torch import nn
@@ -16,6 +17,8 @@ class Contrastive_Methods(Base):
             self.network = MoCoNet(models.__dict__[config.backbone], input_channel=len(config.select_list), K=config.K, m=config.m, T=config.T, mlp=True)
         elif config.method == 'simclr':
             self.network = SimCLRNet(models.__dict__[config.backbone], batch_size=self.config.batch_size, input_channel=len(config.select_list), T=config.T)
+        elif config.method == 'sup_simclr':
+            self.network = SupSimCLRNet(models.__dict__[config.backbone], batch_size=self.config.batch_size, input_channel=len(config.select_list), T=config.T)
         self.network = self.network.cuda()
         if len(self.multiple_gpus) > 1:
             self.network = nn.DataParallel(self.network, self.multiple_gpus)
@@ -26,10 +29,14 @@ class Contrastive_Methods(Base):
         with tqdm(total=len(dataloader), ncols=150) as prog_bar:
             for inputs, targets in dataloader:
                 img_q, img_k, targets = inputs[0].cuda(), inputs[1].cuda(), targets.cuda()
-                logits, labels = self.network(img_q, img_k, targets)
-
-                loss = F.cross_entropy(logits, labels)
+                
                 optimizer.zero_grad()
+                if self.method in 'sup_simclr':
+                    loss = self.network(img_q, img_k, targets)
+                else:
+                    logits, labels = self.network(img_q, img_k)
+                    loss = F.cross_entropy(logits, labels)
+                
                 loss.backward()
                 optimizer.step()
                 losses += loss.item()

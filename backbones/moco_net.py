@@ -68,7 +68,7 @@ class MoCoNet(nn.Module):
         self.queue_ptr[0] = ptr
 
 
-    def forward(self, im_q, im_k, targets):
+    def forward(self, im_q, im_k):
         """
         Input:
             im_q: a batch of query images

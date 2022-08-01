@@ -86,7 +86,7 @@ class Base(object):
                 tblog.add_scalar('trainer{}_seed{}_train/acc'.format(self.trainer_id, self.seed), train_acc, epoch)
             tblog.add_scalar('trainer{}_seed{}_train/loss'.format(self.trainer_id, self.seed), train_loss, epoch)
 
-            if epoch % valid_epoch == 0 and dataloaders['valid'] != None and not (self.method in ['mocoV2', 'simclr']):
+            if epoch % valid_epoch == 0 and dataloaders['valid'] != None and not self.config.is_two_stage_method:
                 valid_acc = self.compute_accuracy(self.network, dataloaders['valid'])
                 test_acc = self.compute_accuracy(self.network, dataloaders['test'])
                 info = 'Epoch {}/{} => Loss {:.3f}, Train_accy {:.2f}, Valid_accy {:.2f}, Test_accy {:.2f}'.format(

@@ -1,8 +1,3 @@
-import logging
-import os
-import sys
-from turtle import forward
-
 import torch
 import torch.nn.functional as F
 from torch.cuda.amp import GradScaler, autocast
@@ -26,7 +21,7 @@ class SimCLRNet(nn.Module):
         self.encoder_q.fc = nn.Sequential(nn.Linear(dim_mlp, dim_mlp), nn.ReLU(), self.encoder_q.fc)
         self.encoder_q
 
-    def forward(self, im_q, im_k, targets):
+    def forward(self, im_q, im_k):
         q = self.encoder_q(im_q)
         k = self.encoder_q(im_k)
         features = torch.cat([q,k], dim=0)

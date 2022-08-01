@@ -33,6 +33,7 @@ class Config:
         parser.add_argument('--split_for_valid', type=bool, default=None)
         parser.add_argument('--kfold', type=int, default=1)
         parser.add_argument('--backbone', type=str, default=None)
+        parser.add_argument('--method', type=str, default=None)
         parser.add_argument('--mlp_num', type=int, default=None)
         parser.add_argument('--pretrained', type=bool, default=False)
         parser.add_argument('--pretrain_path', type=str, default=None)
@@ -88,6 +89,10 @@ class Config:
     def update(self, update_dict: dict) -> None:
         for key, value in update_dict.items():
             setattr(self, key, value)
+    
+    @property
+    def is_two_stage_method(self) -> bool:
+        return self.method in ['simclr', 'mocoV2', 'sup_simclr']
     
     def print_config(self) -> None:
         logging.info(30*"=")

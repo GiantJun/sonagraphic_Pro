@@ -21,6 +21,8 @@ basic:
 
     save_models: true # if true, programm will save model's weights during incremental train
 
+    get_roc_auc: true
+    
     save_name: multi_branch_sum_all_dataset2
 
 options:

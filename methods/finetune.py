@@ -77,6 +77,8 @@ class Finetune(Base):
 
             logging.info('acc = {:.4f} , auc = {:.4f} , precision = {:.4f} , recall = {:.4f} , specificity = {:.4f}, opt_threshold = {}, opt_point = {}'.format(
                     acc, roc_auc, precision, recall, specificity, opt_threshold, opt_point))
+        else:
+            logging.info('acc = {:.4f}'.format(acc))
 
     def get_output(self, dataloader):
         self.network.eval()

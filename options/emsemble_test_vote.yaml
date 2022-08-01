@@ -5,7 +5,7 @@ basic:
     seed: [0] 
     num_workers: 8
 
-    dataset: ultrasound_dataset
+    dataset: ultrasound_dataset1
     # split_for_valid: False (default)
 
     # Method Choises: 
@@ -14,7 +14,6 @@ basic:
     pretrain_dir: /home/2021/yujun/Storage/sonagraphic_pro/logs/dataset1/emsemble2
 
     get_roc_auc: true
-    
     
     batch_size: 16
     # save_name: test_multi_branch_cat_018

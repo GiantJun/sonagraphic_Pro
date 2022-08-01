@@ -62,6 +62,7 @@ class Multi_Vote_Test(Base):
     
     def after_train(self, dataloaders, tblog=None):
         # valid
+        logging.info('===== Evaluate valid set result ======')
         all_preds, all_labels, all_scores = self.get_output(self.dataloaders['valid'])
 
         # 将 confusion matrix 和 ROC curve 输出到 tensorboard
@@ -70,13 +71,16 @@ class Multi_Vote_Test(Base):
         cm_figure.savefig(join(self.save_dir, cm_name+'.png'), bbox_inches='tight')
 
         acc = torch.sum(all_preds == all_labels).item() / len(all_labels)
-        recall = tn / (tn + fp)
-        precision = tn / (tn + fn)
-        specificity = tp / (tp + fn)
-        logging.info('===== Evaluate valid set result ======')
-        logging.info('acc = {:.4f} , precision = {:.4f} , recall = {:.4f} , specificity = {:.4f}'.format(acc, precision, recall, specificity))
+        if self.get_roc_auc:
+            recall = tn / (tn + fp)
+            precision = tn / (tn + fn)
+            specificity = tp / (tp + fn)
+            logging.info('acc = {:.4f} , precision = {:.4f} , recall = {:.4f} , specificity = {:.4f}'.format(acc, precision, recall, specificity))
+        else:
+            logging.info('acc = {:.4f}'.format(acc))
 
         # test        
+        logging.info('===== Evaluate test set result ======')
         all_preds, all_labels, all_scores = self.get_output(self.dataloaders['test'])
 
         # 将 confusion matrix 和 ROC curve 输出到 tensorboard
@@ -86,12 +90,13 @@ class Multi_Vote_Test(Base):
 
         # 计算 precision 和 recall， 将 zero_division 置为0，使当 precision 为0时不出现warning
         acc = torch.sum(all_preds == all_labels).item() / len(all_labels)
-        recall = tn / (tn + fp)
-        precision = tn / (tn + fn)
-        specificity = tp / (tp + fn)
-
-        logging.info('===== Evaluate test set result ======')
-        logging.info('acc = {:.4f} , precision = {:.4f} , recall = {:.4f} , specificity = {:.4f}'.format(acc, precision, recall, specificity))
+        if self.get_roc_auc:
+            recall = tn / (tn + fp)
+            precision = tn / (tn + fn)
+            specificity = tp / (tp + fn)
+            logging.info('acc = {:.4f} , precision = {:.4f} , recall = {:.4f} , specificity = {:.4f}'.format(acc, precision, recall, specificity))
+        else:
+            logging.info('acc = {:.4f}'.format(acc))
 
 
     def get_output(self, dataloader):

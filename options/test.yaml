@@ -12,6 +12,8 @@ basic:
     method: test
 
     pretrain_path: logs/dataset1/emsemble2/res101_trainer0_model_dict.pkl
+
+    get_roc_auc: True
     
     batch_size: 16
     # save_name: test_multi_branch_cat_018

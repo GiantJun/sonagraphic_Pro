@@ -100,8 +100,8 @@ class Base(object):
             elif train_acc is None:
                 # 仅训练特征提取器的方法, 隔步保存模型的方式ict
                 info = 'Epoch {}/{} => Loss {:.3f}'.format(epoch+1, self.epochs, train_loss)
-                if (epoch % 100 == 0 and epoch != 0) or epoch == self.epochs-1:
-                    self.save_checkpoint('model_dict_{}'.format(epoch+1), copy.deepcopy(self.network).cpu())
+                if (epoch % 100 == 0 and epoch != 0) and epoch != self.epochs-1:
+                    self.save_checkpoint('trainer{}_model_dict_{}'.format(self.trainer_id, epoch+1), copy.deepcopy(self.network).cpu())
                     logging.info('save model dict from current model')
             else:
                 test_acc = self.compute_accuracy(self.network, dataloaders['test'])
@@ -110,7 +110,7 @@ class Base(object):
                 
             logging.info(info)
         
-        self.save_checkpoint('trainer{}_model_dict'.format(self.trainer_id), state_dict=best_model_wts)
+        self.save_checkpoint('trainer{}_model_dict_{}'.format(self.trainer_id, epoch+1), state_dict=best_model_wts)
         logging.info('save model dict from best valid model')
             
         if dataloaders['valid'] != None and not ('moco' in self.method or 'simclr' in self.method):

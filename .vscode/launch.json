@@ -8,12 +8,13 @@
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
-            "program": "main.py",
+            "program": "cp_error_img.py",
+            // "program": "main.py",
             // "program": "test.py",
             "console": "integratedTerminal",
             "justMyCode": true,
             // "args": ["--config","options/retrain.yaml"]
-            "args": ["--config","options/retrain.yaml"]
+            // "args": ["--config","options/test.yaml"]
         }
     ]
 }

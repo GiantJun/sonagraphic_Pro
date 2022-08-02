@@ -26,7 +26,7 @@ def get_base_bacbone(base_backbone):
     return net
 
 class MultiBranch_cat(nn.Module):
-    def __init__(self, base_backbone, branch_num, num_classes):
+    def __init__(self, base_backbone, branch_num, num_classes, mlp_num=None):
         super(MultiBranch_cat, self).__init__()
         self.branch_num = branch_num
 
@@ -40,7 +40,15 @@ class MultiBranch_cat(nn.Module):
         
         self.features = nn.ModuleList(model_list)
         
-        self.classifier = nn.Linear(1000*self.branch_num, num_classes)
+        if mlp_num != None and mlp_num > 0:
+            self.classifier = nn.Sequential(*[
+                nn.Linear(1000*self.branch_num, 1000),
+                nn.ReLU(),
+                nn.Linear(1000, num_classes)
+            ])
+            logging.info('Change network classifier head to {} MLP'.format(mlp_num))
+        else:
+            self.classifier = nn.Linear(1000*self.branch_num, num_classes)
         
     def forward(self, x):
         # assert x.shape[1] % self.subnetwork_num == 0, "picture channels do not match!"
@@ -61,7 +69,7 @@ class MultiBranch_cat(nn.Module):
     #     return self.features[-2][-1]
 
 class MultiBranch_sum(nn.Module):
-    def __init__(self, base_backbone, branch_num, num_classes):
+    def __init__(self, base_backbone, branch_num, num_classes, mlp_num=None):
         super(MultiBranch_sum, self).__init__()
         self.branch_num = branch_num
 
@@ -77,7 +85,15 @@ class MultiBranch_sum(nn.Module):
 
         self.weights = nn.Parameter(torch.ones((self.branch_num,1)))
         
-        self.classifier = nn.Linear(1000, num_classes)
+        if mlp_num != None and mlp_num > 0:
+            self.classifier = nn.Sequential(*[
+                nn.Linear(1000, 1000),
+                nn.ReLU(),
+                nn.Linear(1000, num_classes)
+            ])
+            logging.info('Change network classifier head to {} MLP'.format(mlp_num))
+        else:
+            self.classifier = nn.Linear(1000*self.branch_num, num_classes)
         
     def forward(self, x):
         # assert x.shape[1] % self.subnetwork_num == 0, "picture channels do not match!"

@@ -49,7 +49,8 @@ class Finetune(Base):
                 recall = tn / (tn + fp)
                 precision = tn / (tn + fn)
                 specificity = tp / (tp + fn)
-                logging.info('acc = {:.4f} , auc = {:.4f} , precision = {:.4f} , recall = {:.4f} , specificity = {:.4f}'.format(acc, roc_auc, precision, recall, specificity)) 
+                logging.info('acc = {:.4f} , auc = {:.4f} , precision = {:.4f} , recall = {:.4f} , specificity = {:.4f}, opt_threshold = {}, opt_point = {}'.format(
+                    acc, roc_auc, precision, recall, specificity, opt_threshold, opt_point))
             else:
                 logging.info('acc = {:.4f}'.format(acc))
 
@@ -76,7 +77,7 @@ class Finetune(Base):
             precision = tn / (tn + fn)
             specificity = tp / (tp + fn)
 
-            logging.info('acc = {:.4f} , auc = {:.4f} , precision = {:.4f} , recall = {:.4f} , specificity = {:.4f}, opt_threshold = {}, opt_point = {}'.format(
+            logging.info('acc = {:.4f} , auc = {:.4f} , precision = {:.4f} , recall = {:.4f} , specificity = {:.4f} , opt_threshold = {} , opt_point = {}'.format(
                     acc, roc_auc, precision, recall, specificity, opt_threshold, opt_point))
         else:
             logging.info('acc = {:.4f}'.format(acc))

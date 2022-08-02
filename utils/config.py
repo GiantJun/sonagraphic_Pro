@@ -30,19 +30,19 @@ class Config:
         parser.add_argument('--seed', nargs='+', type=int, default=0)
         parser.add_argument('--num_workers', type=int, default=0)
         parser.add_argument('--dataset', type=str, default=None)
-        parser.add_argument('--split_for_valid', type=bool, default=None)
+        parser.add_argument('--split_for_valid', type=bool, default=None) # 赋初值为 None 相当于 False
         parser.add_argument('--kfold', type=int, default=1)
         parser.add_argument('--backbone', type=str, default=None)
         parser.add_argument('--method', type=str, default=None)
         parser.add_argument('--mlp_num', type=int, default=None)
-        parser.add_argument('--pretrained', type=bool, default=False)
+        parser.add_argument('--pretrained', type=bool, default=None)
         parser.add_argument('--pretrain_path', type=str, default=None)
-        parser.add_argument('--freeze', type=bool, default=False)
+        parser.add_argument('--freeze', type=bool, default=None)
         parser.add_argument('--select_list', nargs='+', type=int, default=None)
-        parser.add_argument('--save_models', type=bool, default=False)
+        parser.add_argument('--save_models', type=bool, default=None)
         parser.add_argument('--save_name', type=str, default=None)
-        parser.add_argument('--get_roc_auc', type=bool, default=False)
-        parser.add_argument('--get_mistake', type=bool, default=False)
+        parser.add_argument('--get_roc_auc', type=bool, default=None)
+        parser.add_argument('--get_mistake', type=bool, default=None)
 
         # special config
         parser.add_argument('--base_backbone', type=str, default=None) # multi_branch

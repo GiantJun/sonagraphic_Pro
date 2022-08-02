@@ -14,7 +14,11 @@ basic:
 
     # Backbone Choises: resnet18, resnet18_cbam, resnet50, resnet101, efficientnet_b5, vit_b_16, vit_b_32,
     # vit_l_16, vit_l_32
-    backbone: resnet50
+    
+    # backbone: resnet50
+    backbone: multi_branch_sum
+    base_backbone: resnet18
+
     mlp_num: 1
     pretrained: true
     # pretrain_path: pretrain_models/imagenet200_resnet18_cbam_pretrained.pth
@@ -27,7 +31,7 @@ basic:
 
     save_models: true # if true, programm will save model's weights during incremental train
 
-    save_name: sup_simclr_resnet50_all_dataset1
+    save_name: sup_simclr_MB_sum_all_dataset1
 
 special:
     T: 0.07 # for moco and simclr

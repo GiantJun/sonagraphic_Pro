@@ -17,7 +17,7 @@ from os.path import join
 def get_dataloader(config):
 
     dataset = get_data(config.dataset)
-    dataset.download_data(config.select_list)
+    dataset.download_data(config.select_list, config.get_mistake)
     
     target = dataset.train_dataset.target
     train_dataloaders, valid_dataloaders, test_dataloaders = [], [], []
@@ -126,11 +126,14 @@ class Sonagraph1(iData):
             transforms.ToTensor(),
             transforms.Normalize(UltrasoundDataset.mean_gray, UltrasoundDataset.std_gray)])
 
-    def download_data(self, select_list):
+    def download_data(self, select_list, ret_path=False):
         # or replay environ['xxx'] with './data/'
-        self.train_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_7-13'), transform=self.train_tf, select_list=select_list, dataset_type='train')
-        self.valid_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_7-13'), transform=self.test_tf, select_list=select_list, dataset_type='test1')
-        self.test_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_7-13'), transform=self.test_tf, select_list=select_list, dataset_type='test2')
+        self.train_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_7-13'), transform=self.train_tf,
+            select_list=select_list, dataset_type='train')
+        self.valid_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_7-13'), transform=self.test_tf,
+            select_list=select_list, dataset_type='test1', ret_path=ret_path)
+        self.test_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_7-13'), transform=self.test_tf,
+            select_list=select_list, dataset_type='test2', ret_path=ret_path)
 
         self.class_num = self.train_dataset.class_num
         self.class_names = self.train_dataset.class_names
@@ -155,11 +158,14 @@ class Sonagraph1_224x224(iData):
             transforms.ToTensor(),
             transforms.Normalize(UltrasoundDataset.mean_gray, UltrasoundDataset.std_gray)])
 
-    def download_data(self, select_list):
+    def download_data(self, select_list, ret_path=False):
         # or replay environ['xxx'] with './data/'
-        self.train_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_224_7-13'), transform=self.train_tf, select_list=select_list, dataset_type='train')
-        self.valid_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_224_7-13'), transform=self.test_tf, select_list=select_list, dataset_type='test1')
-        self.test_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_224_7-13'), transform=self.test_tf, select_list=select_list, dataset_type='test2')
+        self.train_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_224_7-13'), transform=self.train_tf,
+            select_list=select_list, dataset_type='train')
+        self.valid_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_224_7-13'), transform=self.test_tf,
+            select_list=select_list, dataset_type='test1', ret_path=ret_path)
+        self.test_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_224_7-13'), transform=self.test_tf,
+            select_list=select_list, dataset_type='test2', ret_path=ret_path)
 
         self.class_num = self.train_dataset.class_num
         self.class_names = self.train_dataset.class_names
@@ -167,11 +173,14 @@ class Sonagraph1_224x224(iData):
 class TwoView_Sonagraph1(Sonagraph1):
     img_size = UltrasoundDataset.img_size
 
-    def download_data(self, select_list):
+    def download_data(self, select_list, ret_path=False):
         # or replay environ['xxx'] with './data/'
-        self.train_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_7-13'), transform=self.train_tf, select_list=select_list, dataset_type='train', ret2Views=True)
-        self.valid_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_7-13'), transform=self.test_tf, select_list=select_list, dataset_type='test1')
-        self.test_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_7-13'), transform=self.test_tf, select_list=select_list, dataset_type='test2')
+        self.train_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_7-13'), transform=self.train_tf,
+            select_list=select_list, dataset_type='train', ret2Views=True)
+        self.valid_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_7-13'), transform=self.test_tf,
+            select_list=select_list, dataset_type='test1')
+        self.test_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_7-13'), transform=self.test_tf,
+            select_list=select_list, dataset_type='test2')
 
         self.class_num = self.train_dataset.class_num
         self.class_names = self.train_dataset.class_names
@@ -196,11 +205,14 @@ class Sonagraph2(iData):
             transforms.ToTensor(),
             transforms.Normalize(UltrasoundDataset.mean_gray, UltrasoundDataset.std_gray)])
 
-    def download_data(self, select_list):
+    def download_data(self, select_list, ret_path=False):
         # or replay environ['xxx'] with './data/'
-        self.train_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound2_7-25'), transform=self.train_tf, select_list=select_list, dataset_type='train')
-        self.valid_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound2_7-25'), transform=self.test_tf, select_list=select_list, dataset_type='test1')
-        self.test_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound2_7-25'), transform=self.test_tf, select_list=select_list, dataset_type='test2')
+        self.train_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound2_7-25'), transform=self.train_tf,
+            select_list=select_list, dataset_type='train')
+        self.valid_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound2_7-25'), transform=self.test_tf,
+            select_list=select_list, dataset_type='test1', ret_path=ret_path)
+        self.test_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound2_7-25'), transform=self.test_tf,
+            select_list=select_list, dataset_type='test2', ret_path=ret_path)
 
         self.class_num = self.train_dataset.class_num
         self.class_names = self.train_dataset.class_names
@@ -225,11 +237,14 @@ class Sonagraph2_224x224(iData):
             transforms.ToTensor(),
             transforms.Normalize(UltrasoundDataset.mean_gray, UltrasoundDataset.std_gray)])
 
-    def download_data(self, select_list):
+    def download_data(self, select_list, ret_path=False):
         # or replay environ['xxx'] with './data/'
-        self.train_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound2_224_7-25'), transform=self.train_tf, select_list=select_list, dataset_type='train')
-        self.valid_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound2_224_7-25'), transform=self.test_tf, select_list=select_list, dataset_type='test1')
-        self.test_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound2_224_7-25'), transform=self.test_tf, select_list=select_list, dataset_type='test2')
+        self.train_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound2_224_7-25'), transform=self.train_tf,
+            select_list=select_list, dataset_type='train')
+        self.valid_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound2_224_7-25'), transform=self.test_tf,
+            select_list=select_list, dataset_type='test1', ret_path=ret_path)
+        self.test_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound2_224_7-25'), transform=self.test_tf,
+            select_list=select_list, dataset_type='test2', ret_path=ret_path)
 
         self.class_num = self.train_dataset.class_num
         self.class_names = self.train_dataset.class_names

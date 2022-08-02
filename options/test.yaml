@@ -1,7 +1,7 @@
 ######### Basic Settings #########
 basic:
     prefix: reproduce
-    device: '0'
+    device: '1'
     seed: [0] 
     num_workers: 8
 
@@ -11,9 +11,11 @@ basic:
     # Method Choises: 
     method: test
 
-    pretrain_path: logs/finetune/multi_branch_sum_all_dataset1/trainer0_model_dict.pkl
+    pretrain_path: logs/dataset2/finetune/efficientnet_b5_all_dataset2/trainer0_model_dict.pkl
 
     get_roc_auc: true
+
+    get_mistake: true
     
     batch_size: 16
     # save_name: test_multi_branch_cat_018

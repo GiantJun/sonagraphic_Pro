@@ -14,10 +14,10 @@ def get_model(config, class_num=None):
         net = torch_models.__dict__[name](pretrained=config.pretrained)
         logging.info('created {} !'.format(name))
     elif name == 'multi_branch_sum':
-        net = MultiBranch_sum(config.base_backbone, len(config.select_list), class_num)
+        net = MultiBranch_sum(config.base_backbone, len(config.select_list), class_num, mlp_num=config.mlp_num)
         logging.info('created multi_branch_sum !')
     elif name == 'multi_branch_cat':
-        net = MultiBranch_cat(config.base_backbone, len(config.select_list), class_num)
+        net = MultiBranch_cat(config.base_backbone, len(config.select_list), class_num, mlp_num=config.mlp_num)
         logging.info('created multi_branch_cat !')
     else:
         raise NotImplementedError('Unknown type {}'.format(config.backbone))

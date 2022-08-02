@@ -25,7 +25,7 @@ def set_logger(config, ret_tblog=True, rename=True) -> SummaryWriter:
         level=logging.INFO,
         format='%(asctime)s [%(filename)s] => %(message)s',
         handlers=[
-            logging.FileHandler(filename=os.path.join(logdir, 'record.log')),
+            logging.FileHandler(filename=os.path.join(logdir, 'record.log'), mode='w'),
             logging.StreamHandler(sys.stdout)
         ]
     )

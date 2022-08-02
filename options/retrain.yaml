@@ -1,6 +1,6 @@
 ######### Basic Settings #########
 basic:
-    device: '0'
+    device: '1'
     # seed: [0] 
     num_workers: 8
 
@@ -13,7 +13,7 @@ basic:
     method: retrain
 
     pretrained: true
-    pretrain_path: logs/mocoV2/mocoV_resnet50_all_dataset1_2022-08-01-12-11-17/model_dict_101.pkl
+    pretrain_path: logs/simclr/simclr_resnet50_all_dataset1/model_dict_500.pkl
     freeze: true
 
     save_models: true # if true, programm will save model's weights during incremental train

@@ -8,18 +8,11 @@ torch.manual_seed(0)
 
 class SimCLRNet(nn.Module):
 
-    def __init__(self, base_encoder, batch_size, dim=128, T=0.07, input_channel=3):
+    def __init__(self, network, batch_size, T=0.07):
         super(SimCLRNet, self).__init__()
-        self.encoder_q = base_encoder(num_classes=dim)
+        self.encoder_q = network
         self.T = T
         self.batch_size = batch_size
-
-        if input_channel != 3:
-            self.encoder_q.conv1 = nn.Conv2d(input_channel, 64, kernel_size=7, stride=2, padding=3, bias=False)
-
-        dim_mlp = self.encoder_q.fc.weight.shape[1]
-        self.encoder_q.fc = nn.Sequential(nn.Linear(dim_mlp, dim_mlp), nn.ReLU(), self.encoder_q.fc)
-        self.encoder_q
 
     def forward(self, im_q, im_k):
         q = self.encoder_q(im_q)

@@ -10,18 +10,20 @@ from tqdm import tqdm
 from os.path import join
 import torch
 import logging
+from backbones.network import get_model
 
 class Contrastive_Methods(Base):
     def __init__(self, trainer_id, config, seed):
         super().__init__(trainer_id, config, seed)
+        network = get_model(config, class_num=128) # 使用moco, simclr等方法默认的特征向量维度128
         if config.method == 'mocoV2':
-            self.network = MoCoNet(models.__dict__[config.backbone], input_channel=len(config.select_list), K=config.K, m=config.m, T=config.T, mlp=True)
+            self.network = MoCoNet(network, K=config.K, m=config.m, T=config.T)
         elif config.method == 'simclr':
-            self.network = SimCLRNet(models.__dict__[config.backbone], batch_size=self.config.batch_size, input_channel=len(config.select_list), T=config.T)
+            self.network = SimCLRNet(network, batch_size=self.config.batch_size, T=config.T)
         elif config.method == 'sup_simclr':
-            self.network = SupSimCLRNet(models.__dict__[config.backbone], batch_size=self.config.batch_size, input_channel=len(config.select_list), T=config.T)
+            self.network = SupSimCLRNet(network, batch_size=self.config.batch_size, T=config.T)
         elif config.method == 'bal_sup_mocoV2':
-            self.network = BalSupMoCoNet(models.__dict__[config.backbone], batch_size=self.config.batch_size, input_channel=len(config.select_list), T=config.T)
+            self.network = BalSupMoCoNet(network, batch_size=self.config.batch_size, T=config.T)
         else:
             raise ValueError('Unknown method {}'.format(config.method))
         self.network = self.network.cuda()

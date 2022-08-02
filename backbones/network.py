@@ -4,17 +4,20 @@ import logging
 import torchvision.models as torch_models
 from backbones.multi_branch_net import MultiBranch_cat, MultiBranch_sum
 
-def get_model(config):
+def get_model(config, class_num=None):
     name = config.backbone.lower()
     net = None
+    if class_num == None:
+        class_num = config.class_num # for self-supervised learning methods
+
     if name in torch_models.__dict__.keys():
         net = torch_models.__dict__[name](pretrained=config.pretrained)
         logging.info('created {} !'.format(name))
     elif name == 'multi_branch_sum':
-        net = MultiBranch_sum(config.base_backbone, len(config.select_list), config.class_num)
+        net = MultiBranch_sum(config.base_backbone, len(config.select_list), class_num)
         logging.info('created multi_branch_sum !')
     elif name == 'multi_branch_cat':
-        net = MultiBranch_cat(config.base_backbone, len(config.select_list), config.class_num)
+        net = MultiBranch_cat(config.base_backbone, len(config.select_list), class_num)
         logging.info('created multi_branch_cat !')
     else:
         raise NotImplementedError('Unknown type {}'.format(config.backbone))
@@ -32,12 +35,12 @@ def get_model(config):
                 classify_head.append(nn.Linear(dim_mlp, dim_mlp))
                 classify_head.append(nn.ReLU())
             logging.info('Change network classifier head to {} MLP'.format(config.mlp_num))
-        classify_head.append(nn.Linear(dim_mlp, config.class_num))
+        classify_head.append(nn.Linear(dim_mlp, class_num))
         if len(classify_head) > 1:
             net.fc = nn.Sequential(*classify_head)
         else:
             net.fc = classify_head[0]
-        logging.info('Change network output logits dimention from 1000 to {}'.format(config.class_num))
+        logging.info('Change network output logits dimention from 1000 to {}'.format(class_num))
 
     elif 'efficientnet' in name:
         if len(config.select_list) != 3:
@@ -52,9 +55,9 @@ def get_model(config):
                 classify_head.append(nn.Linear(dim_mlp, dim_mlp))
                 classify_head.append(nn.ReLU())
             logging.info('Change network classifier head to {} MLP'.format(config.mlp_num))
-        classify_head.append(nn.Linear(dim_mlp, config.class_num))
+        classify_head.append(nn.Linear(dim_mlp, class_num))
         net.classifier = nn.Sequential(*classify_head)
-        logging.info('Change network output logits dimention from 1000 to {}'.format(config.class_num))
+        logging.info('Change network output logits dimention from 1000 to {}'.format(class_num))
     
     elif 'vit' in name:
         if len(config.select_list) != 3:
@@ -63,8 +66,8 @@ def get_model(config):
             logging.info('Change network input channel from 3 to {}'.format(len(config.select_list)))
 
         dim_mlp = net.heads[0].in_features
-        net.heads[0] = nn.Linear(in_features=dim_mlp, out_features=config.class_num, bias=True)
-        logging.info('Change network output logits dimention from 1000 to {}'.format(config.class_num))
+        net.heads[0] = nn.Linear(in_features=dim_mlp, out_features=class_num, bias=True)
+        logging.info('Change network output logits dimention from 1000 to {}'.format(class_num))
             
     # 载入自定义预训练模型
     if config.pretrain_path != None and config.pretrained:        

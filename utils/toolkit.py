@@ -1,3 +1,4 @@
+from audioop import reverse
 import numpy as np
 import os
 import logging
@@ -53,30 +54,57 @@ def count_parameters(model, trainable=False):
         return sum(p.numel() for p in model.parameters() if p.requires_grad)
     return sum(p.numel() for p in model.parameters())
 
-def plot_ROC_curve(all_labels, all_scores, num_classes, title):
+def plot_ROC_curve(all_labels, all_scores, num_classes, title, is_reverse=True):
     """
     输入:all_labels:数据的真实标签
         all_scores:输入数据的预测结果
         title:画出 ROC 图像的标题
+        is_reverse: 将标签反转,正常情况下应该是False, 这里为了方便,设置为True
     输出:figure:ROC曲线图像
     作用:绘制 ROC 曲线并计算 AUC 值
     """
     # 需注意绘制 ROC 曲线时,传入的 all_labels 必须转换为独热编码,all_socres 要转换为1维,元素代表取得评估概率（大于阈值为正例,否则为负例）
     figure = plt.figure()
+    ##################################
+    # 这里因为
+    if is_reverse:
+        reverse_label = []
+        for item in all_labels:
+            if item == 0:
+                reverse_label.append(1)
+            elif item == 1:
+                reverse_label.append(0)
+            else:
+                raise ValueError('label is not 0 or 1 !')
+    ##################################
+
     if all_labels.ndim != 1: # 多分类的情况
         raise ValueError('Do not support ndim != 1')
     else:
         all_labels, all_scores = all_labels.numpy(), all_scores.numpy()
-        fpr, tpr, thresholds = roc_curve(all_labels, all_scores[:,1])   
+        ##################################
+        if reverse:
+            fpr, tpr, thresholds = roc_curve(reverse_label, all_scores[:,0])
+        else:
+            fpr, tpr, thresholds = roc_curve(all_labels, all_scores[:,1])
+        ##################################
         roc_auc = auc(fpr, tpr)
-        opt_idx = np.argmax(fpr-tpr)
+
+        opt_idx = np.argmax(tpr-fpr) # 取距离正对角线最大的点
         opt_threshold = thresholds[opt_idx]
         opt_point = (fpr[opt_idx], tpr[opt_idx])
+
+        cross_idx = np.argmin(np.abs(tpr+fpr-1)) # 取距离反对角线最近的点
+        cross_threshold = thresholds[cross_idx]
 
         lw = 2
         plt.plot(fpr, tpr, color='darkorange',
             lw=lw, label='ROC curve (area = %0.2f)' % roc_auc) ###假正率为横坐标,真正率为纵坐标做曲线
+        plt.plot(fpr[opt_idx], tpr[opt_idx], '*', color='deepskyblue', lw=lw, label="opt point[threshold={:.2f}, ({:.2f},{:.2f})]".format(opt_threshold, fpr[opt_idx], tpr[opt_idx]))
+        plt.plot(fpr[cross_idx], tpr[cross_idx], '*', color='g', lw=lw, label="diag point[threshold={:.2f}, ({:.2f},{:.2f})]".format(cross_threshold, fpr[cross_idx], tpr[cross_idx]))
+        # plt.text(fpr[opt_idx], tpr[opt_idx], '(%.2f,%.2f)' % (fpr[opt_idx], tpr[opt_idx]))
         plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
+        # plt.plot([1, 0], [0, 1], color='silver', lw=lw, linestyle='--')
         # plt.xlim([0.0, 1.0])
         # plt.ylim([0.0, 1.05])
         plt.xlabel('False Positive Rate')

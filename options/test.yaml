@@ -1,17 +1,16 @@
 ######### Basic Settings #########
 basic:
-    prefix: reproduce
     device: '1'
     seed: [0] 
     num_workers: 8
 
-    dataset: ultrasound_dataset2
+    # dataset: ultrasound_dataset2
     # split_for_valid: False (default)
 
     # Method Choises: 
     method: test
 
-    pretrain_path: logs/dataset2/finetune/efficientnet_b5_all_dataset2/trainer0_model_dict.pkl
+    # pretrain_path: logs/dataset2/finetune/efficientnet_b5_all_dataset2/trainer0_model_dict.pkl
 
     get_roc_auc: true
 

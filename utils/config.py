@@ -8,9 +8,10 @@ def load_yaml(settings_path):
     with open(settings_path) as data_file:
         param = yaml.load(data_file, Loader=yaml.FullLoader)
     args.update(param['basic'])
-    dataset = args['dataset']
-    if 'options' in param:
-        args.update(param['options'][dataset])
+    if args['method'] != 'test': # 测试不需要指定训练参数
+        dataset = args['dataset']
+        if 'options' in param:
+            args.update(param['options'][dataset])
     if 'special' in param:
         args.update(param['special'])
     return args
@@ -21,14 +22,15 @@ class Config:
         parser = argparse.ArgumentParser(description='Reproduce of multiple continual learning algorthms.')
         parser.add_argument('--config', type=str, default=None, help='yaml file of settings.')
 
+        self.overwrite_names = []
         # basic config
         self.basic_config_names = ['device', 'seed', 'num_workers', 'dataset', 'split_for_valid', 'kfold',
                         'backbone', 'pretrained', 'freeze', 'select_list', 'save_models', 'save_name']
         self.special_config_names = ['base_backbone']
 
-        parser.add_argument('--device', nargs='+', type=int, default='-1')
-        parser.add_argument('--seed', nargs='+', type=int, default=0)
-        parser.add_argument('--num_workers', type=int, default=0)
+        parser.add_argument('--device', nargs='+', type=int, default=None)
+        parser.add_argument('--seed', nargs='+', type=int, default=None)
+        parser.add_argument('--num_workers', type=int, default=None)
         parser.add_argument('--dataset', type=str, default=None)
         parser.add_argument('--split_for_valid', type=bool, default=None) # 赋初值为 None 相当于 False
         parser.add_argument('--kfold', type=int, default=1)
@@ -66,7 +68,9 @@ class Config:
         if self.config != None:
             init_config = load_yaml(self.config)
             for name, value in init_config.items():
-                setattr(self, name, value)
+                if getattr(self, name) == None:
+                    setattr(self, name, value)
+                    self.overwrite_names.append(name)
             print('Loaded config file: {}'.format(self.config))
     
     def get_save_config(self) -> dict:
@@ -83,6 +87,8 @@ class Config:
         for key, value in init_dict.items():
             if getattr(self, key) == None:
                 setattr(self, key, value)
+                self.overwrite_names.append(key)
+                
         if self.method == 'test':
             self.kfold = 1
             self.pretrained = True
@@ -103,7 +109,8 @@ class Config:
         logging.info("log hyperparameters in seed {}".format(self.seed))
         logging.info(30*"-")
         for name, value in vars(self).items():
-            if name != 'basic_config_names' and name != 'special_config_names':
+            if not name in ['basic_config_names', 'special_config_names', 'overwrite_names']:
                 logging.info('{}: {}'.format(name, value))
         logging.info(30*"=")
+        logging.info('overwrite configs : {}'.format(self.overwrite_names))
         

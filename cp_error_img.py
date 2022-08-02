@@ -3,8 +3,21 @@ import csv
 from utils.toolkit import check_makedirs
 from shutil import copy
 
+# 每次只生成一个数据集的分类错误图片
+######## 括约肌(dataset1) ########
+# csv_path = 'XXXXX/valid_mistake.cvs'
+# origin_img_dir = '/home/2021/yujun/Storage/Data/括约肌7月13日/内部验证集'
+
+# csv_path = 'XXXXX/test_mistake.cvs'
+# origin_img_dir = '/home/2021/yujun/Storage/Data/括约肌7月13日/外部验证—湖南妇幼'
+
+######## 肛提肌(dataset2) ########
 csv_path = 'logs/test/efficientnet_b5_all_dataset2/valid_mistake.cvs'
-origin_img_dir = '/home/2021/yujun/Storage/Data/肛提肌7月25日/外部验证—佛山'
+origin_img_dir = '/home/2021/yujun/Storage/Data/括约肌7月13日/外部验证集'
+
+# csv_path = 'logs/test/efficientnet_b5_all_dataset2/test_mistake.cvs'
+# origin_img_dir = '/home/2021/yujun/Storage/Data/肛提肌7月25日/外部验证—湖南妇幼'
+
 
 save_dir = join(dirname(csv_path), 'error_img')
 check_makedirs(join(save_dir, '非标准'))

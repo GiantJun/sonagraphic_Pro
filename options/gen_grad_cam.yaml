@@ -1,6 +1,5 @@
 ######### Basic Settings #########
 basic:
-    prefix: reproduce
     device: '0'
     seed: [0] 
     num_workers: 8

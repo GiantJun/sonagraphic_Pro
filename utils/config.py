@@ -39,6 +39,7 @@ class Config:
         parser.add_argument('--mlp_num', type=int, default=None)
         parser.add_argument('--pretrained', type=bool, default=None)
         parser.add_argument('--pretrain_path', type=str, default=None)
+        parser.add_argument('--pretrain_dir', type=str, default=None)
         parser.add_argument('--freeze', type=bool, default=None)
         parser.add_argument('--select_list', nargs='+', type=int, default=None)
         parser.add_argument('--save_models', type=bool, default=None)
@@ -85,11 +86,11 @@ class Config:
         if 'state_dict' in init_dict:
             init_dict.pop('state_dict')
         for key, value in init_dict.items():
-            if getattr(self, key) == None:
+            if (not hasattr(self,key)) or getattr(self, key) == None:
                 setattr(self, key, value)
                 self.overwrite_names.append(key)
                 
-        if self.method == 'test':
+        if 'test' in self.method: # 包含 test emsemble_test_avg, emsemble_test_vote
             self.kfold = 1
             self.pretrained = True
             self.split_for_valid = False

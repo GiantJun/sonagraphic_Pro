@@ -14,7 +14,7 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             // "args": ["--config","options/retrain.yaml"]
-            "args": ["--config","options/finetune.yaml"]
+            "args": ["--config","options/emsemble_test_avg.yaml"]
         }
     ]
 }

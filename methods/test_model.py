@@ -1,3 +1,4 @@
+from importlib.resources import path
 from torch import nn
 from methods.base import Base
 import logging
@@ -115,9 +116,9 @@ class TestModel(Base):
             return all_preds, all_labels, all_scores, None
         
     def log_mistakes(self, predict, targets, paths, scores, phase):
-        csv_name = join(self.config.logdir, phase+'_mistake.cvs')
+        csv_name = join(self.config.logdir, phase+'_mistake.csv')
         with open(csv_name,'w') as error_csv:
-            error_writer = csv.writer(error_csv, dialect = "excel")
+            error_writer = csv.writer(error_csv)
             error_writer.writerow(['Name', 'Target', 'Predict', 'Error_Conf', 'Path'])
             for index in torch.where(predict != targets)[0].tolist():
                 error_writer.writerow([self.config.class_names[targets[index]]+'_'+basename(paths[index]),

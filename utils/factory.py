@@ -1,7 +1,6 @@
 from methods.finetune import Finetune
 from methods.test_model import TestModel
-from methods.emsemble_test_vote import Multi_Vote_Test
-from methods.emsemble_test_avg import Multi_Avg_Test
+from methods.emsemble_test import Multi_Avg_Test, Multi_Vote_Test
 from methods.gen_grad_cam import Gen_Grad_CAM
 from methods.contrastive import Contrastive_Methods
 

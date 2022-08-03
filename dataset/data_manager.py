@@ -72,6 +72,9 @@ def get_data(dataset_name):
     elif name == 'ultrasound_dataset2':
         logging.info('applying 肛提肌数据集')
         return Sonagraph2()
+    elif name == 'twoview_ultrasound_dataset2':
+        logging.info('applying two view 肛提肌数据集')
+        return TwoView_Sonagraph2()
     elif name == 'ultrasound_dataset1_224':
         logging.info('applying 括约肌数据集 224x224')
         return Sonagraph1_224x224()
@@ -213,6 +216,21 @@ class Sonagraph2(iData):
             select_list=select_list, dataset_type='test1', ret_path=ret_path)
         self.test_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound2_7-25'), transform=self.test_tf,
             select_list=select_list, dataset_type='test2', ret_path=ret_path)
+
+        self.class_num = self.train_dataset.class_num
+        self.class_names = self.train_dataset.class_names
+
+class TwoView_Sonagraph2(Sonagraph2):
+    img_size = UltrasoundDataset.img_size
+
+    def download_data(self, select_list, ret_path=False):
+        # or replay environ['xxx'] with './data/'
+        self.train_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound2_7-25'), transform=self.train_tf,
+            select_list=select_list, dataset_type='train', ret2Views=True)
+        self.valid_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound2_7-25'), transform=self.test_tf,
+            select_list=select_list, dataset_type='test1')
+        self.test_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound2_7-25'), transform=self.test_tf,
+            select_list=select_list, dataset_type='test2')
 
         self.class_num = self.train_dataset.class_num
         self.class_names = self.train_dataset.class_names

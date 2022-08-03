@@ -1,6 +1,5 @@
 ######### Basic Settings #########
 basic:
-    prefix: reproduce
     device: '0'
     seed: [0] 
     num_workers: 8
@@ -11,9 +10,11 @@ basic:
     # Method Choises: 
     method: emsemble_test_vote
 
-    pretrain_dir: /home/2021/yujun/Storage/sonagraphic_pro/logs/dataset1/emsemble2
+    pretrain_dir: logs/dataset1/emsemble
 
     get_roc_auc: true
+
+    # get_mistake: true
     
     batch_size: 16
     # save_name: test_multi_branch_cat_018

@@ -46,9 +46,10 @@ class MultiBranch_cat(nn.Module):
                 nn.ReLU(),
                 nn.Linear(1000, num_classes)
             ])
-            logging.info('Change network classifier head to {} MLP'.format(mlp_num))
+            logging.info('Change network classifier head to {} MLP with output dim {}'.format(mlp_num, num_classes))
         else:
             self.classifier = nn.Linear(1000*self.branch_num, num_classes)
+            logging.info('Change network classifier head with output dim {}'.format(num_classes))
         
     def forward(self, x):
         # assert x.shape[1] % self.subnetwork_num == 0, "picture channels do not match!"
@@ -91,9 +92,10 @@ class MultiBranch_sum(nn.Module):
                 nn.ReLU(),
                 nn.Linear(1000, num_classes)
             ])
-            logging.info('Change network classifier head to {} MLP'.format(mlp_num))
+            logging.info('Change network classifier head to {} MLP with output dim {}'.format(mlp_num, num_classes))
         else:
-            self.classifier = nn.Linear(1000*self.branch_num, num_classes)
+            self.classifier = nn.Linear(1000, num_classes)
+            logging.info('Change network classifier head with output dim {}'.format(num_classes))
         
     def forward(self, x):
         # assert x.shape[1] % self.subnetwork_num == 0, "picture channels do not match!"

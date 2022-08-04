@@ -1,4 +1,3 @@
-from audioop import reverse
 import numpy as np
 import os
 import logging
@@ -54,40 +53,22 @@ def count_parameters(model, trainable=False):
         return sum(p.numel() for p in model.parameters() if p.requires_grad)
     return sum(p.numel() for p in model.parameters())
 
-def plot_ROC_curve(all_labels, all_scores, num_classes, title, is_reverse=True):
+def plot_ROC_curve(all_labels, all_scores, num_classes, title):
     """
     输入:all_labels:数据的真实标签
         all_scores:输入数据的预测结果
         title:画出 ROC 图像的标题
-        is_reverse: 将标签反转,正常情况下应该是False, 这里为了方便,设置为True
     输出:figure:ROC曲线图像
     作用:绘制 ROC 曲线并计算 AUC 值
     """
     # 需注意绘制 ROC 曲线时,传入的 all_labels 必须转换为独热编码,all_socres 要转换为1维,元素代表取得评估概率（大于阈值为正例,否则为负例）
     figure = plt.figure()
-    ##################################
-    # 这里因为
-    if is_reverse:
-        reverse_label = []
-        for item in all_labels:
-            if item == 0:
-                reverse_label.append(1)
-            elif item == 1:
-                reverse_label.append(0)
-            else:
-                raise ValueError('label is not 0 or 1 !')
-    ##################################
 
     if all_labels.ndim != 1: # 多分类的情况
         raise ValueError('Do not support ndim != 1')
     else:
         all_labels, all_scores = all_labels.numpy(), all_scores.numpy()
-        ##################################
-        if reverse:
-            fpr, tpr, thresholds = roc_curve(reverse_label, all_scores[:,0])
-        else:
-            fpr, tpr, thresholds = roc_curve(all_labels, all_scores[:,1])
-        ##################################
+        fpr, tpr, thresholds = roc_curve(all_labels, all_scores[:,1])
         roc_auc = auc(fpr, tpr)
 
         opt_idx = np.argmax(tpr-fpr) # 取距离正对角线最大的点
@@ -120,7 +101,6 @@ def plot_confusion_matrix(all_labels, all_preds, class_names, title):
         class_names (array, shape = [n]):分类任务中类别的名字
         title (string):生成图片的标题
     输出:figure:混淆矩阵可视化图片对象
-    作用:生成混淆矩阵可视化图片,返回不合格的 TP、FP、FN、TN
     """
     cm = confusion_matrix(all_labels.numpy(), all_preds.numpy())
     figure = plt.figure(figsize=[6.4,5.0])
@@ -139,11 +119,12 @@ def plot_confusion_matrix(all_labels, all_preds, class_names, title):
     for i, j in product(range(cm.shape[0]), range(cm.shape[1])):
         plt.text(j, i, cm[i, j],
                 horizontalalignment='center',
-                color='white' if cm[i,j] > thresh else 'black')
+                color='white' if cm[i,j] > thresh else 'black',
+                fontsize=16)
 
     plt.tight_layout()
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
 
-    return figure, cm[0][0], cm[1][0], cm[0][1], cm[1][1]
+    return figure, cm
 

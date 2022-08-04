@@ -48,7 +48,7 @@ class UltrasoundDataset(Dataset):
             root_dir = join(root,'train')
             # 训练集测试集下，各类别名默认为一致
             self.class_names = listdir(root_dir)
-            self.class_names.sort()
+            self.class_names.sort(reverse=True) # 0-standard, 1-nonstandard
             self.class_num = len(self.class_names)
             for idx, item in enumerate(self.class_names):   # idx 相当于类别标号，此处0-nonstandard,1-standard
                 for type in ['train', 'valid', 'test']:
@@ -62,7 +62,7 @@ class UltrasoundDataset(Dataset):
         elif dataset_type in ['train', 'valid', 'test'] or 'test' in dataset_type:
             root_dir = join(root,dataset_type)
             self.class_names = listdir(root_dir)
-            self.class_names.sort()
+            self.class_names.sort(reverse=True) # 0-standard, 1-nonstandard
             self.class_num = len(self.class_names)
             
             for idx, item in enumerate(self.class_names):   # idx 相当于类别标号，此处0-nonstandard,1-standard

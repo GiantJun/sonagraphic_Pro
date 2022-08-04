@@ -1,16 +1,16 @@
 ######### Basic Settings #########
 basic:
-    device: '0'
+    device: '1'
     seed: [0] 
     num_workers: 8
 
-    dataset: ultrasound_dataset1
+    dataset: ultrasound_dataset2
     # split_for_valid: False (default)
 
     # Method Choises: 
     method: emsemble_test_vote
 
-    pretrain_dir: logs/dataset1/emsemble
+    pretrain_dir: logs/dataset2/emsemble
 
     get_roc_auc: true
 

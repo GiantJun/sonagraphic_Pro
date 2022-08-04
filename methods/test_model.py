@@ -38,7 +38,7 @@ class TestModel(Base):
 
             # 将 confusion matrix 和 ROC curve 输出到 tensorboard
             cm_name = "valid_Confusion_Matrix"
-            cm_figure, tp, fp, fn, tn = plot_confusion_matrix(all_labels, all_preds, self.class_names, cm_name)
+            cm_figure, cm = plot_confusion_matrix(all_labels, all_preds, self.class_names, cm_name)
             cm_figure.savefig(join(self.save_dir, cm_name+'.png'), bbox_inches='tight')
 
             acc = torch.sum(all_preds == all_labels).item() / len(all_labels)            
@@ -46,10 +46,11 @@ class TestModel(Base):
                 roc_name = "valid_ROC_Curve"
                 roc_auc, roc_figure, opt_threshold, opt_point = plot_ROC_curve(all_labels, all_scores, self.class_names, roc_name)
                 roc_figure.savefig(join(self.save_dir, roc_name+'.png'), bbox_inches='tight')
-
-                recall = tn / (tn + fp)
-                precision = tn / (tn + fn)
-                specificity = tp / (tp + fn)
+                
+                tn, fp, fn, tp = cm.ravel()
+                recall = tp / (tp + fn)
+                precision = tp / (tp + fp)
+                specificity = tn / (tn + fp)
                 logging.info('acc = {:.4f} , auc = {:.4f} , precision = {:.4f} , recall = {:.4f} , specificity = {:.4f}, opt_threshold = {}, opt_point = {}'.format(
                     acc, roc_auc, precision, recall, specificity, opt_threshold, opt_point))
             else:
@@ -62,7 +63,7 @@ class TestModel(Base):
 
         # 将 confusion matrix 和 ROC curve 输出到 tensorboard
         cm_name = "test_Confusion_Matrix"
-        cm_figure, tp, fp, fn, tn = plot_confusion_matrix(all_labels, all_preds, self.class_names, cm_name)
+        cm_figure, cm = plot_confusion_matrix(all_labels, all_preds, self.class_names, cm_name)
         cm_figure.savefig(join(self.save_dir, cm_name+'.png'), bbox_inches='tight')
 
         acc = torch.sum(all_preds == all_labels).item() / len(all_labels)
@@ -71,10 +72,10 @@ class TestModel(Base):
             roc_auc, roc_figure, opt_threshold, opt_point = plot_ROC_curve(all_labels, all_scores, self.class_names, roc_name)
             roc_figure.savefig(join(self.save_dir, roc_name+'.png'), bbox_inches='tight')
 
-            # 计算 precision 和 recall， 将 zero_division 置为0，使当 precision 为0时不出现warning
-            recall = tn / (tn + fp)
-            precision = tn / (tn + fn)
-            specificity = tp / (tp + fn)
+            tn, fp, fn, tp = cm.ravel()
+            recall = tp / (tp + fn)
+            precision = tp / (tp + fp)
+            specificity = tn / (tn + fp)
             logging.info('acc = {:.4f} , auc = {:.4f} , precision = {:.4f} , recall = {:.4f} , specificity = {:.4f}, opt_threshold = {}, opt_point = {}'.format(
                     acc, roc_auc, precision, recall, specificity, opt_threshold, opt_point))
         else:

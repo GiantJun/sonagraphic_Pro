@@ -34,7 +34,7 @@ class Finetune(Base):
 
             # 将 confusion matrix 和 ROC curve 输出到 tensorboard
             cm_name = self.method+'_'+self.backbone+"_valid_Confusion_Matrix"
-            cm_figure, tp, fp, fn, tn = plot_confusion_matrix(all_labels, all_preds, self.class_names, cm_name)
+            cm_figure, cm = plot_confusion_matrix(all_labels, all_preds, self.class_names, cm_name)
             if tblog is not None:
                 tblog.add_figure(cm_name, cm_figure)
             
@@ -45,10 +45,10 @@ class Finetune(Base):
                 roc_auc, roc_figure, opt_threshold, opt_point = plot_ROC_curve(all_labels, all_scores, self.class_names, roc_name)
                 if tblog is not None:
                     tblog.add_figure(roc_name, roc_figure)
-
-                recall = tn / (tn + fp)
-                precision = tn / (tn + fn)
-                specificity = tp / (tp + fn)
+                tn, fp, fn, tp = cm.ravel()
+                recall = tp / (tp + fn)
+                precision = tp / (tp + fp)
+                specificity = tn / (tn + fp)
                 logging.info('acc = {:.4f} , auc = {:.4f} , precision = {:.4f} , recall = {:.4f} , specificity = {:.4f}, opt_threshold = {}, opt_point = {}'.format(
                     acc, roc_auc, precision, recall, specificity, opt_threshold, opt_point))
             else:
@@ -60,7 +60,7 @@ class Finetune(Base):
 
         # 将 confusion matrix 和 ROC curve 输出到 tensorboard
         cm_name = self.method+'_'+self.backbone+"_test_Confusion_Matrix"
-        cm_figure, tp, fp, fn, tn = plot_confusion_matrix(all_labels, all_preds, self.class_names, cm_name)
+        cm_figure, cm = plot_confusion_matrix(all_labels, all_preds, self.class_names, cm_name)
         if tblog is not None:
             tblog.add_figure(cm_name, cm_figure)
 
@@ -72,10 +72,10 @@ class Finetune(Base):
             if tblog is not None:
                 tblog.add_figure(roc_name, roc_figure)
 
-            # 计算 precision 和 recall， 将 zero_division 置为0，使当 precision 为0时不出现warning
-            recall = tn / (tn + fp)
-            precision = tn / (tn + fn)
-            specificity = tp / (tp + fn)
+            tn, fp, fn, tp = cm.ravel()
+            recall = tp / (tp + fn)
+            precision = tp / (tp + fp)
+            specificity = tn / (tn + fp)
 
             logging.info('acc = {:.4f} , auc = {:.4f} , precision = {:.4f} , recall = {:.4f} , specificity = {:.4f} , opt_threshold = {} , opt_point = {}'.format(
                     acc, roc_auc, precision, recall, specificity, opt_threshold, opt_point))

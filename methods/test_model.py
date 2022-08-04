@@ -10,7 +10,6 @@ from utils.toolkit import plot_confusion_matrix, plot_ROC_curve
 from utils.toolkit import count_parameters
 from os.path import join, basename
 import csv
-import pandas as pd
 
 class TestModel(Base):
     def __init__(self, trainer_id, args, seed):
@@ -55,7 +54,8 @@ class TestModel(Base):
                     acc, roc_auc, precision, recall, specificity, opt_threshold, opt_point))
             else:
                 logging.info('acc = {:.4f}'.format(acc))
-            self.log_mistakes(all_preds, all_labels, all_paths, all_scores, 'valid')
+            if self.config.get_mistake:
+                self.log_mistakes(all_preds, all_labels, all_paths, all_scores, 'valid')
 
         # test        
         logging.info('===== Evaluate test set result ======')
@@ -80,7 +80,9 @@ class TestModel(Base):
                     acc, roc_auc, precision, recall, specificity, opt_threshold, opt_point))
         else:
             logging.info('acc = {:.4f}'.format(acc))
-        self.log_mistakes(all_preds, all_labels, all_paths, all_scores, 'test')
+        
+        if self.config.get_mistake:
+            self.log_mistakes(all_preds, all_labels, all_paths, all_scores, 'test')
 
 
     def get_output(self, dataloader):

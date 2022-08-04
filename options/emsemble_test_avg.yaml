@@ -14,7 +14,7 @@ basic:
 
     get_roc_auc: true
 
-    # get_mistake: true
+    get_mistake: true
     
     batch_size: 16
     # save_name: test_multi_branch_cat_018

@@ -1,27 +1,24 @@
 import torch
 import torch.nn as nn
 import logging
-from torchvision.models import resnet18, resnet34, resnet50, resnet101
+import torchvision.models as torch_models
 
 def get_base_bacbone(base_backbone):
     name = base_backbone.lower()
     net = None
-    if name == 'resnet18':
-        logging.info('created resnet18!')
-        net = resnet18(pretrained=True)
-    elif name == 'resnet34':
-        net = resnet34(pretrained=True)
-        logging.info('created resnet34!')
-    elif name == 'resnet50':
-        net = resnet50(pretrained=True)
-        logging.info('created resnet50!')
-    elif name == 'resnet101':
-        net = resnet101(pretrained=True)
-        logging.info('created resnet101!')
+    if name in torch_models.__dict__.keys():
+        net = torch_models.__dict__[name](pretrained=True)
+        logging.info('created base_backbone: {} !'.format(name))
     else:
-        raise NotImplementedError('Unknown type {}'.format(base_backbone))
+        raise ValueError('Unknown base_backbone type {}'.format(base_backbone))
     
-    net.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
+    if 'resnet' in name:
+        net.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
+    elif 'efficientnet' in name:
+        net.features[0][0] = nn.Conv2d(1, 48, kernel_size=3, stride=2, padding=1, bias=False)
+    else:
+        raise ValueError('Could not change base_backbone {} input channel'.format(base_backbone))
+
     logging.info('Change network input channel from 3 to {}'.format(1))
     return net
 

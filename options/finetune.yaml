@@ -28,12 +28,12 @@ basic:
 
     get_roc_auc: true
 
-    save_name: resnet101_all_dataset1_test
+    save_name: resnet101_all_dataset1
 
 options:
     ultrasound_dataset1:
         
-        epochs: 1 # 150
+        epochs: 150 # 150
         batch_size: 16
 
         lrate: 0.0001

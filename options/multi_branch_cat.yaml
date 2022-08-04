@@ -1,11 +1,11 @@
 ######### Basic Settings #########
 basic:
-    device: '3'
+    device: '1'
     seed: [0] 
     num_workers: 8
 
     # Dataset Choises: ultrasound_dataset
-    dataset: ultrasound_dataset2
+    dataset: ultrasound_dataset1
     split_for_valid: true # if kfold>1, it will be ignored
     kfold: 1
 
@@ -24,7 +24,7 @@ basic:
 
     get_roc_auc: true
     
-    save_name: multi_branch_cat_all_dataset2
+    save_name: multi_branch_cat_all_dataset1
 
 options:
     ultrasound_dataset1:

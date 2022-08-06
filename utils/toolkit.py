@@ -10,22 +10,27 @@ from itertools import product
 
 
 
-def set_logger(config, ret_tblog=True, rename=True) -> SummaryWriter:
+def set_logger(config, ret_tblog=True, reuse=False) -> SummaryWriter:
     nowTime = datetime.datetime.now().strftime('_%Y-%m-%d-%H-%M-%S')
-    if config.save_name == None:
-        logdir = 'logs/{}/'.format(config.method)+'{}_{}_{}_{}'.format(config.backbone, config.dataset, config.opt_type, config.criterion)
+    logdir = None
+    if reuse and config.logdir != None:
+        logdir = config.logdir
     else:
-        logdir = 'logs/{}/'.format(config.method)+config.save_name
-    if os.path.exists(logdir) and rename: # rename 用于判断，若出现重名文件夹时，是否创建一个新的
-        print('{} has already exist, use {} instead'.format(logdir, logdir+nowTime))
-        logdir += nowTime
-    config.update({'logdir':logdir})
-    check_makedirs(logdir)
+        if config.save_name == None:
+            logdir = 'logs/{}/'.format(config.method)+'{}_{}'.format(config.backbone, config.dataset)
+        else:
+            logdir = 'logs/{}/'.format(config.method)+config.save_name
+        if os.path.exists(logdir):
+            print('{} has already exist, use {} instead'.format(logdir, logdir+nowTime))
+            logdir += nowTime
+        config.update({'logdir':logdir})
+        check_makedirs(logdir)
+        
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s [%(filename)s] => %(message)s',
         handlers=[
-            logging.FileHandler(filename=os.path.join(logdir, 'record.log'), mode='w'),
+            logging.FileHandler(filename=os.path.join(logdir, '{}.log'.format(config.method)), mode='w'),
             logging.StreamHandler(sys.stdout)
         ]
     )

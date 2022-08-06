@@ -1,11 +1,11 @@
 ######### Basic Settings #########
 basic:
-    device: '0'
+    device: '2'
     seed: [0] 
     num_workers: 8
 
     # Dataset Choises: ultrasound_dataset
-    dataset: ultrasound_dataset1
+    dataset: ultrasound_dataset2
     split_for_valid: true # if kfold>1, it will be ignored
     kfold: 1
 
@@ -14,7 +14,7 @@ basic:
 
     # Backbone Choises: resnet18, resnet18_cbam, resnet50, resnet101, efficientnet_b5, vit_b_16, vit_b_32,
     # vit_l_16, vit_l_32
-    backbone: resnet101
+    backbone: efficientnet_b2
     pretrained: true
     # pretrain_path: pretrain_models/imagenet200_resnet18_cbam_pretrained.pth
     freeze: false
@@ -28,7 +28,7 @@ basic:
 
     get_roc_auc: true
 
-    save_name: resnet101_all_dataset1
+    save_name: efficientnet_b2_all_dataset2
 
 options:
     ultrasound_dataset1:

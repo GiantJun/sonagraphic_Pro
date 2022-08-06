@@ -24,17 +24,17 @@ if __name__ == '__main__':
     os.environ['CUDA_VISIBLE_DEVICES']=config.device
 
     try:
-        if 'test' == config.method or 'retrain' == config.method:
+        if config.method in ['test', 'retrain', 'gen_grad_cam']:
             saved_dict = torch.load(config.pretrain_path)
             config.load_saved_config(saved_dict)
             
-            if config.method == 'test':
-                tblog = set_logger(config, ret_tblog=False, rename=False) # 若出现重名文件夹时，直接覆盖掉原来的内容
+            if config.method == 'retrain':
+                tblog = set_logger(config, ret_tblog=True, reuse=True)
             else:
-                tblog = set_logger(config, ret_tblog=True, rename=True)
+                tblog = set_logger(config, ret_tblog=False, reuse=True) # 复用文件夹
             
             data_loaders, class_num, class_names, img_size = get_dataloader(config)
-            test_dataloaders = {'train':data_loaders['train'][0], 'valid':data_loaders['valid'][0], 'test':data_loaders['test'][0]}
+            data_loaders = {'train':data_loaders['train'][0], 'valid':data_loaders['valid'][0], 'test':data_loaders['test'][0]}
             config.update({'class_num':class_num, 'class_names':class_names, 'img_size':img_size})
             seed = saved_dict['seed']
             config.print_config()
@@ -42,38 +42,20 @@ if __name__ == '__main__':
 
             trainer_id = re.search('\d+', os.path.basename(config.pretrain_path)).group()
             trainer = get_trainer(trainer_id, config, seed)
-            trainer.train_model(test_dataloaders, tblog)
-            trainer.after_train(test_dataloaders, tblog)
+            trainer.train_model(data_loaders, tblog)
+            trainer.after_train(data_loaders, tblog)
 
         elif 'emsemble_test' in config.method:
             config.update({'save_name': os.path.basename(config.pretrain_dir)})
-
-            tblog = set_logger(config, ret_tblog=False, rename=False) # 若出现重名文件夹时，直接覆盖掉原来的内容
-            
+            config.logdir=config.pretrain_dir
+            tblog = set_logger(config, ret_tblog=False, reuse=True) # 复用文件夹
             seed = 0
             set_random(seed)
             trainer = get_trainer(0, config, seed)
             trainer.train_model(None, tblog)
             trainer.after_train(None, tblog)
-        elif 'gen_grad_cam' in config.method:
-            saved_dict = torch.load(config.pretrain_path)
-            config.load_saved_config(saved_dict)
-            
-            tblog = set_logger(config, ret_tblog=False, rename=False) # 若出现重名文件夹时，直接覆盖掉原来的内容
 
-            data_loaders, class_num, class_names, img_size = get_dataloader(config)
-            # test_dataloaders = {'valid':data_loaders['valid'][0], 'test':data_loaders['test'][0]}
-            config.update({'class_num':class_num, 'class_names':class_names, 'img_size':img_size})
-            seed = config.seed
-            config.print_config()
-            set_random(seed)
-
-            trainer_id = re.search('\d+', os.path.basename(config.pretrain_path)).group()
-            trainer = get_trainer(trainer_id, config, seed)
-            trainer.train_model(None, tblog)
-            trainer.after_train(None, tblog)
-
-        else:
+        else: # 训练模型
             tblog = set_logger(config, ret_tblog=True, rename=True)
             # 准备数据集
             data_loaders, class_num, class_names, img_size = get_dataloader(config)

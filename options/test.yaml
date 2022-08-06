@@ -10,7 +10,7 @@ basic:
     # Method Choises: 
     method: test
 
-    pretrain_path: logs/finetune/resnet101_all_dataset1_test_2022-08-04-06-35-55/trainer0_model_dict_1.pkl
+    pretrain_path: logs/finetune/multi_branch_cat_all_dataset2/trainer0_model_dict_150_1.pkl
 
     get_roc_auc: true
 

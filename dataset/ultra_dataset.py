@@ -4,6 +4,7 @@ from os import listdir
 from torch import cat
 from PIL import Image
 import logging
+from pytorch_grad_cam.utils.image import show_cam_on_image
 
 class UltrasoundDataset(Dataset):
     """自定义 Dataset 类"""

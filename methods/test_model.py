@@ -6,15 +6,16 @@ from backbones.network import get_model
 import torch
 from tqdm import tqdm
 from torch.nn.functional import softmax
+from utils.config import Config
 from utils.toolkit import plot_confusion_matrix, plot_ROC_curve
 from utils.toolkit import count_parameters
 from os.path import join, basename
 import csv
 
 class TestModel(Base):
-    def __init__(self, trainer_id, args, seed):
-        super().__init__(trainer_id, args, seed)
-        self.network = get_model(args)
+    def __init__(self, trainer_id:int, config:Config, seed:int):
+        super().__init__(trainer_id, config, seed)
+        self.network = get_model(config)
 
         for name, param in self.network.named_parameters():
             param.requires_grad = False
@@ -36,13 +37,13 @@ class TestModel(Base):
             all_preds, all_labels, all_scores, all_paths = self.get_output(dataloaders['valid'])
 
             # 将 confusion matrix 和 ROC curve 输出到 tensorboard
-            cm_name = "valid_Confusion_Matrix"
+            cm_name = "{}_valid_Confusion_Matrix".format(self.method)
             cm_figure, cm = plot_confusion_matrix(all_labels, all_preds, self.class_names, cm_name)
             cm_figure.savefig(join(self.save_dir, cm_name+'.png'), bbox_inches='tight')
 
             acc = torch.sum(all_preds == all_labels).item() / len(all_labels)            
             if self.get_roc_auc:
-                roc_name = "valid_ROC_Curve"
+                roc_name = "{}_valid_ROC_Curve".format(self.method)
                 roc_auc, roc_figure, opt_threshold, opt_point = plot_ROC_curve(all_labels, all_scores, self.class_names, roc_name)
                 roc_figure.savefig(join(self.save_dir, roc_name+'.png'), bbox_inches='tight')
                 
@@ -62,13 +63,13 @@ class TestModel(Base):
         all_preds, all_labels, all_scores, all_paths = self.get_output(dataloaders['test'])
 
         # 将 confusion matrix 和 ROC curve 输出到 tensorboard
-        cm_name = "test_Confusion_Matrix"
+        cm_name = "{}_test_Confusion_Matrix".format(self.method)
         cm_figure, cm = plot_confusion_matrix(all_labels, all_preds, self.class_names, cm_name)
         cm_figure.savefig(join(self.save_dir, cm_name+'.png'), bbox_inches='tight')
 
         acc = torch.sum(all_preds == all_labels).item() / len(all_labels)
         if self.get_roc_auc:
-            roc_name = "test_ROC_Curve"
+            roc_name = "{}_test_ROC_Curve".format(self.method)
             roc_auc, roc_figure, opt_threshold, opt_point = plot_ROC_curve(all_labels, all_scores, self.class_names, roc_name)
             roc_figure.savefig(join(self.save_dir, roc_name+'.png'), bbox_inches='tight')
 
@@ -119,7 +120,7 @@ class TestModel(Base):
             return all_preds, all_labels, all_scores, None
         
     def log_mistakes(self, predict, targets, paths, scores, phase):
-        csv_name = join(self.config.logdir, phase+'_mistake.csv')
+        csv_name = join(self.config.logdir, self.method+'_'+phase+'_mistake.csv')
         with open(csv_name,'w') as error_csv:
             error_writer = csv.writer(error_csv)
             error_writer.writerow(['Name', 'Target', 'Predict', 'Error_Conf', 'Path'])

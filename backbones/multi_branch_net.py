@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import logging
 import torchvision.models as torch_models
+from utils.grad_cam import get_target_layers
 
 def get_base_bacbone(base_backbone):
     name = base_backbone.lower()
@@ -26,6 +27,7 @@ class MultiBranch_cat(nn.Module):
     def __init__(self, base_backbone, branch_num, num_classes, mlp_num=None):
         super(MultiBranch_cat, self).__init__()
         self.branch_num = branch_num
+        self.base_backbone = base_backbone
 
         model_list = []
         for i in range(branch_num):
@@ -63,13 +65,11 @@ class MultiBranch_cat(nn.Module):
 
         return self.classifier(out)
 
-    # def get_feature_layer(self):
-    #     return self.features[-2][-1]
-
 class MultiBranch_sum(nn.Module):
     def __init__(self, base_backbone, branch_num, num_classes, mlp_num=None):
         super(MultiBranch_sum, self).__init__()
         self.branch_num = branch_num
+        self.base_backbone = base_backbone
 
         model_list = []
         for i in range(branch_num):
@@ -108,6 +108,3 @@ class MultiBranch_sum(nn.Module):
         out = (out * self.weights).sum(1)
 
         return self.classifier(out)
-
-    # def get_feature_layer(self):
-    #     return self.features[-2][-1]

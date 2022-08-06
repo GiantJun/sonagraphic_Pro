@@ -44,7 +44,7 @@ def get_model(config, class_num=None):
 
     elif 'efficientnet' in name:
         if len(config.select_list) != 3:
-            net.features[0][0] = nn.Conv2d(len(config.select_list), 48, kernel_size=3, stride=2, padding=1, bias=False)
+            net.features[0][0] = nn.Conv2d(len(config.select_list), net.features[0][0].out_channels, kernel_size=3, stride=2, padding=1, bias=False)
             logging.info('Change network input channel from 3 to {}'.format(len(config.select_list)))
 
         dim_mlp = net.classifier[1].in_features
@@ -62,7 +62,7 @@ def get_model(config, class_num=None):
     elif 'vit' in name:
         if len(config.select_list) != 3:
             patch_size = net.conv_proj.kernel_size[0]
-            net.conv_proj = nn.Conv2d(len(config.select_list), 768, kernel_size=patch_size, stride=patch_size, bias=False)
+            net.conv_proj = nn.Conv2d(len(config.select_list), net.conv_proj.out_channels, kernel_size=patch_size, stride=patch_size, bias=False)
             logging.info('Change network input channel from 3 to {}'.format(len(config.select_list)))
 
         dim_mlp = net.heads[0].in_features

@@ -17,7 +17,7 @@ from os.path import join
 def get_dataloader(config):
 
     dataset = get_data(config.dataset)
-    dataset.download_data(config.select_list, config.get_mistake)
+    dataset.download_data(config.select_list, config.get_mistake or config.method=='gen_grad_cam')
     
     target = dataset.train_dataset.target
     train_dataloaders, valid_dataloaders, test_dataloaders = [], [], []

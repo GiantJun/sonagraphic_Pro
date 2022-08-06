@@ -8,7 +8,7 @@ def load_yaml(settings_path):
     with open(settings_path) as data_file:
         param = yaml.load(data_file, Loader=yaml.FullLoader)
     args.update(param['basic'])
-    if args['method'] != 'test': # 测试不需要指定训练参数
+    if not ('test' in args['method'] or 'gen_grad_cam' in args['method']): # 测试不需要指定训练参数
         dataset = args['dataset']
         if 'options' in param:
             args.update(param['options'][dataset])
@@ -25,7 +25,7 @@ class Config:
         self.overwrite_names = []
         # basic config
         self.basic_config_names = ['device', 'seed', 'num_workers', 'dataset', 'split_for_valid', 'kfold',
-                        'backbone', 'pretrained', 'freeze', 'select_list', 'save_models', 'save_name']
+                        'backbone', 'pretrained', 'freeze', 'select_list', 'save_models', 'save_name', 'logdir']
         self.special_config_names = ['base_backbone']
 
         parser.add_argument('--device', nargs='+', type=int, default=None)
@@ -44,8 +44,11 @@ class Config:
         parser.add_argument('--select_list', nargs='+', type=int, default=None)
         parser.add_argument('--save_models', type=bool, default=None)
         parser.add_argument('--save_name', type=str, default=None)
+        parser.add_argument('--logdir', type=str, default=None)
+
         parser.add_argument('--get_roc_auc', type=bool, default=None)
         parser.add_argument('--get_mistake', type=bool, default=None)
+        parser.add_argument('--gen_cam_img_path', type=str, default=None)
 
         # special config
         parser.add_argument('--base_backbone', type=str, default=None) # multi_branch
@@ -90,7 +93,7 @@ class Config:
                 setattr(self, key, value)
                 self.overwrite_names.append(key)
                 
-        if 'test' in self.method: # 包含 test emsemble_test_avg, emsemble_test_vote
+        if 'test' in self.method or 'gen_grad_cam' in self.method: # 包含 test emsemble_test_avg, emsemble_test_vote
             self.kfold = 1
             self.pretrained = True
             self.split_for_valid = False

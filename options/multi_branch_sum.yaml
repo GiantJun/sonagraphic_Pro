@@ -1,6 +1,6 @@
 ######### Basic Settings #########
 basic:
-    device: '2'
+    device: '1'
     seed: [0] 
     num_workers: 8
 

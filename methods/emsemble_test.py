@@ -103,7 +103,7 @@ class Multi_Vote_Test(Multi_Avg_Test):
             all_preds, all_labels, all_scores, all_paths = self.get_output(self.dataloaders['valid'])
 
             # 将 confusion matrix 和 ROC curve 输出到 tensorboard
-            cm_name = "valid_Confusion_Matrix"
+            cm_name = "{}_valid_Confusion_Matrix".format(self.method)
             cm_figure, cm = plot_confusion_matrix(all_labels, all_preds, self.class_names, cm_name)
             cm_figure.savefig(join(self.save_dir, cm_name+'.png'), bbox_inches='tight')
 
@@ -125,7 +125,7 @@ class Multi_Vote_Test(Multi_Avg_Test):
         all_preds, all_labels, all_scores, all_paths = self.get_output(self.dataloaders['test'])
 
         # 将 confusion matrix 和 ROC curve 输出到 tensorboard
-        cm_name = "test_Confusion_Matrix"
+        cm_name = "{}_test_Confusion_Matrix".format(self.method)
         cm_figure, cm = plot_confusion_matrix(all_labels, all_preds, self.class_names, cm_name)
         cm_figure.savefig(join(self.save_dir, cm_name+'.png'), bbox_inches='tight')
 

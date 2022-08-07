@@ -18,4 +18,5 @@ python main.py --config options/finetune.yaml
 为了方便，以及避免运行程序时输入过多参数，你可以通过指定初始化参数文件（在option目录下），对实验的参数进行初始化（更多参数可见utils/config.py）
 
 ## 测试模型
-模型训练完后，会在 log 文件夹下记录训练过程中的输出及相关信息
+模型训练完后，会在 log 文件夹下记录训练过程中的输出及相关信息，如：
+>> logs/finetune/resnet50_all_dataset1

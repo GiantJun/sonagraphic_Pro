@@ -4,11 +4,9 @@ import logging
 from backbones.network import get_model
 from utils.config import Config
 from tqdm import tqdm
-from os.path import join, basename, dirname, splitext, exists
+from os.path import join, basename, dirname, exists
 from os import listdir
 from utils.toolkit import count_parameters
-from PIL import Image, ImageDraw
-import torch
 import imageio
 from utils.grad_cam import GradCAM, show_cam_on_image, get_target_layers
 from utils.toolkit import check_makedirs

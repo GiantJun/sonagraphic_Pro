@@ -267,7 +267,6 @@ class Sonagraph2_224x224(iData):
         self.class_num = self.train_dataset.class_num
         self.class_names = self.train_dataset.class_names
         
-
 def pil_loader(path):
     '''
     Ref:

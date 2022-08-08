@@ -39,7 +39,7 @@ class Gen_Grad_CAM(Base):
                     is_merge_layers_cam= False )
 
         for phase in ['valid', 'test']:
-            with tqdm(total=len(dataloaders[phase]), ncols=150) as _tqdm:   # 显示进度条
+            with tqdm(total=len(dataloaders[phase])) as _tqdm:   # 显示进度条
                 for input, labels, paths in dataloaders[phase]:
                     grayscale_cam = cam(input_tensor=input, target_category=labels)
                     for batch_idx in range(grayscale_cam.shape[0]):

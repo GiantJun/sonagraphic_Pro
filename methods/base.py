@@ -124,7 +124,7 @@ class Base(object):
         self.network.train()
         losses = 0.
         correct, total = 0, 0
-        with tqdm(total=len(dataloader), ncols=150) as prog_bar:
+        with tqdm(total=len(dataloader)) as prog_bar:
             for inputs, targets in dataloader:
                 inputs, targets = inputs.cuda(), targets.cuda()
                 logits = self.network(inputs)

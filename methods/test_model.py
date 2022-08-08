@@ -95,7 +95,7 @@ class TestModel(Base):
         all_paths = []
 
         with torch.no_grad():
-            with tqdm(total=len(dataloader), ncols=150) as _tqdm:   # 显示进度条
+            with tqdm(total=len(dataloader)) as _tqdm:   # 显示进度条
                 for item in dataloader:
                     if len(item) == 2:
                         inputs, labels = item

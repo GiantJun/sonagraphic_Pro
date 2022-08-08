@@ -33,7 +33,7 @@ class Contrastive_Methods(Base):
     def epoch_train(self, dataloader, optimizer, scheduler):
         self.network.train()
         losses = 0.
-        with tqdm(total=len(dataloader), ncols=150) as prog_bar:
+        with tqdm(total=len(dataloader)) as prog_bar:
             for inputs, targets in dataloader:
                 img_q, img_k, targets = inputs[0].cuda(), inputs[1].cuda(), targets.cuda()
                 

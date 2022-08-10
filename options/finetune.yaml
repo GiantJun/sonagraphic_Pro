@@ -1,6 +1,6 @@
 ######### Basic Settings #########
 basic:
-    device: '2'
+    device: '1'
     seed: [0] 
     num_workers: 8
 
@@ -14,7 +14,7 @@ basic:
 
     # Backbone Choises: resnet18, resnet18_cbam, resnet50, resnet101, efficientnet_b5, vit_b_16, vit_b_32,
     # vit_l_16, vit_l_32
-    backbone: efficientnet_b2
+    backbone: resnet50
     pretrained: true
     # pretrain_path: pretrain_models/imagenet200_resnet18_cbam_pretrained.pth
     freeze: false
@@ -28,7 +28,7 @@ basic:
 
     get_roc_auc: true
 
-    save_name: efficientnet_b2_all_dataset2
+    save_name: resnet50_all_dataset2
 
 options:
     ultrasound_dataset1:

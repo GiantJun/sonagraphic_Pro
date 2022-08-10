@@ -17,16 +17,18 @@ class Multi_Avg_Test(Base):
         super().__init__(trainer_id, config, seed)
         file_names = listdir(config.pretrain_dir)
         file_names.sort()
-        logging.info('emsemble models: {}'.format(file_names))
 
         pretrain_paths = []
         self.networks = []
 
         self.batch_size = config.batch_size
 
+        logging.info('=== emsemble models: ===')
         for item in file_names:
             if item.endswith('.pkl'):
                 pretrain_paths.append(join(config.pretrain_dir, item))
+                logging.info(item)
+        logging.info('='*20)
 
         valid_dataloaders, test_dataloaders = [], []
         for pretrain_path in pretrain_paths:
@@ -174,27 +176,26 @@ class Multi_Vote_Test(Multi_Avg_Test):
     
     def after_train(self, dataloaders, tblog=None):
         # valid
-        if not dataloaders['valid'] is None:
-            logging.info('===== Evaluate valid set result ======')
-            all_preds, all_labels, all_scores, all_paths = self.get_output(self.dataloaders['valid'])
+        logging.info('===== Evaluate valid set result ======')
+        all_preds, all_labels, all_scores, all_paths = self.get_output(self.dataloaders['valid'])
 
-            # 将 confusion matrix 和 ROC curve 输出到 tensorboard
-            cm_name = "{}_valid_Confusion_Matrix".format(self.method)
-            cm_figure, cm = plot_confusion_matrix(all_labels, all_preds, self.class_names, cm_name)
-            cm_figure.savefig(join(self.save_dir, cm_name+'.png'), bbox_inches='tight')
+        # 将 confusion matrix 和 ROC curve 输出到 tensorboard
+        cm_name = "{}_valid_Confusion_Matrix".format(self.method)
+        cm_figure, cm = plot_confusion_matrix(all_labels, all_preds, self.class_names, cm_name)
+        cm_figure.savefig(join(self.save_dir, cm_name+'.png'), bbox_inches='tight')
 
-            acc = torch.sum(all_preds == all_labels).item() / len(all_labels)
-            if self.get_roc_auc:
-                tn, fp, fn, tp = cm.ravel()
-                recall = tp / (tp + fn)
-                precision = tp / (tp + fp)
-                specificity = tn / (tn + fp)
-                logging.info('acc = {:.4f} , precision = {:.4f} , recall = {:.4f} , specificity = {:.4f}'.format(acc, precision, recall, specificity))
-            else:
-                logging.info('acc = {:.4f}'.format(acc))
+        acc = torch.sum(all_preds == all_labels).item() / len(all_labels)
+        if self.get_roc_auc:
+            tn, fp, fn, tp = cm.ravel()
+            recall = tp / (tp + fn)
+            precision = tp / (tp + fp)
+            specificity = tn / (tn + fp)
+            logging.info('acc = {:.4f} , precision = {:.4f} , recall = {:.4f} , specificity = {:.4f}'.format(acc, precision, recall, specificity))
+        else:
+            logging.info('acc = {:.4f}'.format(acc))
 
-            if self.config.get_mistake:
-                self.log_mistakes(all_preds, all_labels, all_paths, all_scores, 'valid')
+        if self.config.get_mistake:
+            self.log_mistakes(all_preds, all_labels, all_paths, all_scores, 'valid')
 
         # test        
         logging.info('===== Evaluate test set result ======')

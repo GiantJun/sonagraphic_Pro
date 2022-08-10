@@ -1,6 +1,6 @@
 ######### Basic Settings #########
 basic:
-    device: '1'
+    device: '4'
     seed: [0] 
     num_workers: 8
 
@@ -13,7 +13,7 @@ basic:
     method: finetune
 
     backbone: multi_branch_sum
-    base_backbone: resnet18
+    base_backbone: efficientnet_b2
     pretrained: true
     # pretrain_path: pretrain_models/imagenet200_resnet18_cbam_pretrained.pth
     freeze: false
@@ -23,7 +23,7 @@ basic:
 
     get_roc_auc: true
     
-    save_name: multi_branch_sum_all_dataset2
+    save_name: multi_branch_sum_efficientnet_b2_all_dataset2
 
 options:
     ultrasound_dataset1:

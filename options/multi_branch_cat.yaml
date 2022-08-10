@@ -1,6 +1,6 @@
 ######### Basic Settings #########
 basic:
-    device: '5'
+    device: '3'
     seed: [0] 
     num_workers: 8
 
@@ -14,7 +14,7 @@ basic:
 
     # Backbone Choises: resnet18, resnet18_cbam, resnet50, resnet101
     backbone: multi_branch_cat
-    base_backbone: resnet18
+    base_backbone: efficientnet_b2
     pretrained: true
     # pretrain_path: pretrain_models/imagenet200_resnet18_cbam_pretrained.pth
     freeze: false
@@ -24,7 +24,7 @@ basic:
 
     get_roc_auc: true
     
-    save_name: multi_branch_cat_all_dataset2
+    save_name: multi_branch_cat_efficientnet_b2_all_dataset2
 
 options:
     ultrasound_dataset1:

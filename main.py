@@ -56,7 +56,7 @@ if __name__ == '__main__':
             trainer.after_train(None, tblog)
 
         else: # 训练模型
-            tblog = set_logger(config, ret_tblog=True, rename=True)
+            tblog = set_logger(config, ret_tblog=True, reuse=False)
             # 准备数据集
             data_loaders, class_num, class_names, img_size = get_dataloader(config)
             config.update({'class_num':class_num, 'class_names':class_names, 'img_size':img_size})

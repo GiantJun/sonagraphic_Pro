@@ -10,7 +10,7 @@ basic:
     # Method Choises: 
     method: emsemble_test_avg
 
-    pretrain_dir: logs/dataset1/emsembel
+    pretrain_dir: logs/dataset2/emsemble1
 
     get_roc_auc: true
 

@@ -11,9 +11,8 @@ from os import listdir
 import copy
 from dataset.data_manager import get_dataloader
 import csv
-from methods.test_model import TestModel
 
-class Multi_Avg_Test(TestModel):
+class Multi_Avg_Test(Base):
     def __init__(self, trainer_id:int, config:Config, seed:int):
         super().__init__(trainer_id, config, seed)
         file_names = listdir(config.pretrain_dir)
@@ -51,33 +50,98 @@ class Multi_Avg_Test(TestModel):
                 network = nn.DataParallel(network, self.multiple_gpus)
             self.networks.append(network)
         
+        self.config.update({'class_num':temp_config.class_num, 'class_names':temp_config.class_names})
         self.dataloaders = {'valid':valid_dataloaders, 'test':test_dataloaders}
         self.class_names = class_names
         self.class_num = class_num
 
+    def train_model(self, dataloaders, tblog, valid_epoch=1):
+        pass
+    
+    def after_train(self, dataloaders, tblog=None):
+        # valid
+        logging.info('===== Evaluate valid set result ======')
+        all_preds, all_labels, all_scores, all_paths = self.get_output(self.dataloaders['valid'])
+
+        # 将 confusion matrix 和 ROC curve 输出到 tensorboard
+        cm_name = "{}_valid_Confusion_Matrix".format(self.method)
+        cm_figure, cm = plot_confusion_matrix(all_labels, all_preds, self.class_names, cm_name)
+        cm_figure.savefig(join(self.save_dir, cm_name+'.png'), bbox_inches='tight')
+
+        acc = torch.sum(all_preds == all_labels).item() / len(all_labels)            
+        if self.get_roc_auc:
+            roc_name = "{}_valid_ROC_Curve".format(self.method)
+            roc_auc, roc_figure, opt_threshold, opt_point = plot_ROC_curve(all_labels, all_scores, self.class_names, roc_name)
+            roc_figure.savefig(join(self.save_dir, roc_name+'.png'), bbox_inches='tight')
+            
+            tn, fp, fn, tp = cm.ravel()
+            recall = tp / (tp + fn)
+            precision = tp / (tp + fp)
+            specificity = tn / (tn + fp)
+            logging.info('acc = {:.4f} , auc = {:.4f} , precision = {:.4f} , recall = {:.4f} , specificity = {:.4f}, opt_threshold = {}, opt_point = {}'.format(
+                acc, roc_auc, precision, recall, specificity, opt_threshold, opt_point))
+        else:
+            logging.info('acc = {:.4f}'.format(acc))
+        if self.config.get_mistake:
+            self.log_mistakes(all_preds, all_labels, all_paths, all_scores, 'valid')
+
+        # test        
+        logging.info('===== Evaluate test set result ======')
+        all_preds, all_labels, all_scores, all_paths = self.get_output(self.dataloaders['test'])
+
+        # 将 confusion matrix 和 ROC curve 输出到 tensorboard
+        cm_name = "{}_test_Confusion_Matrix".format(self.method)
+        cm_figure, cm = plot_confusion_matrix(all_labels, all_preds, self.class_names, cm_name)
+        cm_figure.savefig(join(self.save_dir, cm_name+'.png'), bbox_inches='tight')
+
+        acc = torch.sum(all_preds == all_labels).item() / len(all_labels)
+        if self.get_roc_auc:
+            roc_name = "{}_test_ROC_Curve".format(self.method)
+            roc_auc, roc_figure, opt_threshold, opt_point = plot_ROC_curve(all_labels, all_scores, self.class_names, roc_name)
+            roc_figure.savefig(join(self.save_dir, roc_name+'.png'), bbox_inches='tight')
+
+            tn, fp, fn, tp = cm.ravel()
+            recall = tp / (tp + fn)
+            precision = tp / (tp + fp)
+            specificity = tn / (tn + fp)
+            logging.info('acc = {:.4f} , auc = {:.4f} , precision = {:.4f} , recall = {:.4f} , specificity = {:.4f}, opt_threshold = {}, opt_point = {}'.format(
+                    acc, roc_auc, precision, recall, specificity, opt_threshold, opt_point))
+        else:
+            logging.info('acc = {:.4f}'.format(acc))
+        
+        if self.config.get_mistake:
+            self.log_mistakes(all_preds, all_labels, all_paths, all_scores, 'test')
+
     def get_output(self, dataloader):
-        all_preds = torch.tensor([])
-        all_labels = torch.tensor([])
+        all_preds = torch.tensor([], dtype=torch.long)
+        all_labels = torch.tensor([], dtype=torch.long)
         all_scores = torch.tensor([])
+        all_paths = []
 
         with torch.no_grad():
             while(1):
                 try:
                     scores = torch.zeros((self.batch_size, self.class_num))
                     for idx in range(len(self.networks)):
-                        inputs, labels = next(dataloader[idx])
+                        item = next(dataloader[idx])
+                        if len(item) == 2:
+                            inputs, labels = item
+                        elif len(item) == 3:
+                            inputs, labels, paths = item
                         model = self.networks[idx]
                         inputs= inputs.cuda(non_blocking=True)
                         outputs = model(inputs)
                         _, preds = torch.max(outputs, 1)
                         if idx==0 :
-                            all_labels = torch.cat((all_labels, labels), 0)
+                            all_labels = torch.cat((all_labels, labels.long()), 0)
+                            if len(item) == 3:
+                                all_paths.extend(paths)
                         
                         # logits 求平均
                         scores[0:outputs.shape[0]] += torch.softmax(outputs.detach().cpu(), 1)
                     
                     _, preds = torch.max(scores,1)
-                    all_preds = torch.cat((all_preds, preds), 0)
+                    all_preds = torch.cat((all_preds, preds.long()), 0)
                     all_scores = torch.cat((all_scores, scores), 0)  
                 except StopIteration as e:
                     logging.info('test set inference and evaluation finished')
@@ -92,7 +156,19 @@ class Multi_Avg_Test(TestModel):
         
         all_scores /= len(self.networks)*1.0
         
-        return all_preds, all_labels, all_scores
+        if len(all_paths) > 0:
+            return all_preds, all_labels, all_scores, all_paths
+        else:
+            return all_preds, all_labels, all_scores, None
+    
+    def log_mistakes(self, predict, targets, paths, scores, phase):
+        csv_name = join(self.config.logdir, self.method+'_'+phase+'_mistake.csv')
+        with open(csv_name,'w') as error_csv:
+            error_writer = csv.writer(error_csv)
+            error_writer.writerow(['Name', 'Target', 'Predict', 'Error_Conf', 'Path'])
+            for index in torch.where(predict != targets)[0].tolist():
+                error_writer.writerow([self.config.class_names[targets[index]]+'_'+basename(paths[index]),
+                    targets[index].item(), predict[index].item(), scores[index][predict[index]].item(), paths[index]])
 
 class Multi_Vote_Test(Multi_Avg_Test):
     
@@ -145,8 +221,8 @@ class Multi_Vote_Test(Multi_Avg_Test):
 
 
     def get_output(self, dataloader):
-        all_preds = torch.tensor([])
-        all_labels = torch.tensor([])
+        all_preds = torch.tensor([], dtype=torch.long)
+        all_labels = torch.tensor([], dtype=torch.long)
         all_scores = torch.tensor([])
         all_paths = []
 
@@ -173,7 +249,7 @@ class Multi_Vote_Test(Multi_Avg_Test):
                         scores[list(range(len(preds))),preds] = scores[list(range(len(preds))),preds]+1
                     
                     _, preds = torch.max(scores,1)
-                    all_preds = torch.cat((all_preds, preds), 0)
+                    all_preds = torch.cat((all_preds, preds.long()), 0)
                     all_scores = torch.cat((all_scores, scores), 0)  
                 except StopIteration:
                     logging.debug('test set inference and evaluation finished')

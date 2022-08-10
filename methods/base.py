@@ -101,7 +101,7 @@ class Base(object):
                 # 仅训练特征提取器的方法, 隔步保存模型的方式ict
                 info = 'Epoch {}/{} => Loss {:.3f}'.format(epoch+1, self.epochs, train_loss)
                 if (epoch % 100 == 0 and epoch != 0) and epoch != self.epochs-1:
-                    self.save_checkpoint('{}_trainer{}_model_dict_{}'.format(self.method, self.trainer_id, epoch+1), copy.deepcopy(self.network).cpu())
+                    self.save_checkpoint('{}_trainer{}_model_dict_{}'.format(self.backbone, self.trainer_id, epoch+1), copy.deepcopy(self.network).cpu())
                     logging.info('save model dict from current model')
             else:
                 test_acc = self.compute_accuracy(self.network, dataloaders['test'])
@@ -110,7 +110,7 @@ class Base(object):
                 
             logging.info(info)
         
-        self.save_checkpoint('{}_trainer{}_model_dict_{}'.format(self.method, self.trainer_id, epoch+1), state_dict=best_model_wts)
+        self.save_checkpoint('{}_trainer{}_model_dict_{}'.format(self.backbone, self.trainer_id, epoch+1), state_dict=best_model_wts)
         logging.info('save model dict from best valid model')
             
         if dataloaders['valid'] != None and not self.config.is_two_stage_method:

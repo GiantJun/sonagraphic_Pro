@@ -131,11 +131,11 @@ class Sonagraph1(iData):
 
     def download_data(self, select_list, ret_path=False):
         # or replay environ['xxx'] with './data/'
-        self.train_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_7-13'), transform=self.train_tf,
+        self.train_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_8-8'), transform=self.train_tf,
             select_list=select_list, dataset_type='train')
-        self.valid_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_7-13'), transform=self.test_tf,
+        self.valid_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_8-8'), transform=self.test_tf,
             select_list=select_list, dataset_type='test1', ret_path=ret_path)
-        self.test_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_7-13'), transform=self.test_tf,
+        self.test_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_8-8'), transform=self.test_tf,
             select_list=select_list, dataset_type='test2', ret_path=ret_path)
 
         self.class_num = self.train_dataset.class_num
@@ -163,11 +163,11 @@ class Sonagraph1_224x224(iData):
 
     def download_data(self, select_list, ret_path=False):
         # or replay environ['xxx'] with './data/'
-        self.train_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_224_7-13'), transform=self.train_tf,
+        self.train_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_224_8-8'), transform=self.train_tf,
             select_list=select_list, dataset_type='train')
-        self.valid_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_224_7-13'), transform=self.test_tf,
+        self.valid_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_224_8-8'), transform=self.test_tf,
             select_list=select_list, dataset_type='test1', ret_path=ret_path)
-        self.test_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_224_7-13'), transform=self.test_tf,
+        self.test_dataset = UltrasoundDataset(join(environ['DATASETS'],'ultrasound1_224_8-8'), transform=self.test_tf,
             select_list=select_list, dataset_type='test2', ret_path=ret_path)
 
         self.class_num = self.train_dataset.class_num

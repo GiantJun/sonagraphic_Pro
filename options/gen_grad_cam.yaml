@@ -9,7 +9,7 @@ basic:
     # Method Choises: 
     method: gen_grad_cam
 
-    pretrain_path: logs/finetune/multi_branch_cat_all_dataset1/trainer0_model_dict_150_1.pkl
+    # pretrain_path: logs/finetune/multi_branch_cat_all_dataset1/trainer0_model_dict_150_1.pkl
 
     batch_size: 16
     

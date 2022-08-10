@@ -1,6 +1,5 @@
-import argparse
+from os.path import dirname
 from utils.toolkit import set_logger
-import yaml
 from dataset.data_manager import get_dataloader
 import torch
 from utils.factory import get_trainer
@@ -27,6 +26,7 @@ if __name__ == '__main__':
         if config.method in ['test', 'retrain', 'gen_grad_cam']:
             saved_dict = torch.load(config.pretrain_path)
             config.load_saved_config(saved_dict)
+            config.logdir = dirname(config.pretrain_path)
             
             if config.method == 'retrain':
                 tblog = set_logger(config, ret_tblog=True, reuse=True)

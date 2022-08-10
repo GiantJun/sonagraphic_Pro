@@ -89,8 +89,8 @@ class TestModel(Base):
     def get_output(self, dataloader):
         self.network.eval()
 
-        all_preds = torch.tensor([])
-        all_labels = torch.tensor([])
+        all_preds = torch.tensor([], dtype=torch.long)
+        all_labels = torch.tensor([], dtype=torch.long)
         all_scores = torch.tensor([])
         all_paths = []
 
@@ -108,8 +108,8 @@ class TestModel(Base):
                     scores = softmax(outputs.detach().cpu(),1)
                     preds = preds.detach().cpu()
 
-                    all_preds = torch.cat((all_preds.long(), preds.long()), 0)
-                    all_labels = torch.cat((all_labels.long(), labels), 0)
+                    all_preds = torch.cat((all_preds, preds.long()), 0)
+                    all_labels = torch.cat((all_labels, labels.long()), 0)
                     all_scores = torch.cat((all_scores,scores), 0)
 
                     _tqdm.update(1)

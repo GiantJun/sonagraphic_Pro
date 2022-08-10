@@ -16,7 +16,7 @@ def get_base_bacbone(base_backbone):
     if 'resnet' in name:
         net.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
     elif 'efficientnet' in name:
-        net.features[0][0] = nn.Conv2d(1, 48, kernel_size=3, stride=2, padding=1, bias=False)
+        net.features[0][0] = nn.Conv2d(1, net.features[0][0].out_channels, kernel_size=3, stride=2, padding=1, bias=False)
     else:
         raise ValueError('Could not change base_backbone {} input channel'.format(base_backbone))
 

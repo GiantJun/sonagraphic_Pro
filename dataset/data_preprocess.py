@@ -67,7 +67,15 @@ crop_size_1856x1116 = (605,350)
 # 原始图片尺寸为 1552x964, ***
 point_1552x964 = [(32, 60), (538, 60), (1044, 60), (32, 362), (538, 362), (1044, 362), (32, 664), (538, 664), (1044, 664)]
 crop_size_1552x964 = (505,300)
-
+# 原始图片尺寸为 720x576, 括约肌断裂-标准7.JPG
+point_720x576 = [(46, 72), (257, 72), (468, 72), (46, 226), (257, 226), (468, 226), (46, 380), (257, 380), (468, 380)]
+crop_size_720x576 = (210,152)
+# 原始图片尺寸为 1136x852, 括约肌断裂-标准1.jpg
+point_1136x852 = [(28, 67), (397, 67), (766, 67), (28, 326), (397, 326), (766, 326), (28, 585), (397, 585), (766, 585)]
+crop_size_1136x852 = (368, 257)
+# 原始图片尺寸为 968X708, 括约肌断裂-标准1.jpg
+point_968X708 = [(25, 58), (340, 58), (655, 58), (25, 275), (340, 275), (655, 275), (25, 492), (340, 492), (655, 492)]
+crop_size_968X708 = (968, 708)
 
 # 设定随机种子
 random.seed(100)
@@ -133,6 +141,15 @@ def cropImage_Save(img_list, save_dir):
         elif img.shape[0] == 964 and img.shape[1] == 1552:
             points = point_1552x964
             crop_size = crop_size_1552x964
+        elif img.shape[0] == 576 and img.shape[1] == 720:
+            points = point_720x576
+            crop_size = crop_size_720x576
+        elif img.shape[0] == 852 and img.shape[1] == 1136:
+            points = point_1136x852
+            crop_size = crop_size_1136x852
+        elif img.shape[0] == 708 and img.shape[1] == 968:
+            points = point_968X708
+            crop_size = crop_size_968X708
         else :
             print('error size in {} , img_size={}'.format(img_path,img.shape))
             continue

@@ -2,7 +2,9 @@ from torch import nn
 from torch import load
 import logging
 import torchvision.models as torch_models
+from backbones.usfn import BEiTBackbone4Seg
 from backbones.multi_branch_net import MultiBranch_cat, MultiBranch_sum
+from backbones.multi_adapter_net import Multi_Adapter_Net
 
 def get_model(config, class_num=None):
     name = config.backbone.lower()
@@ -13,12 +15,20 @@ def get_model(config, class_num=None):
     if name in torch_models.__dict__.keys():
         net = torch_models.__dict__[name](pretrained=config.pretrained)
         logging.info('created {} !'.format(name))
+    elif name == 'usfn':
+        net = BEiTBackbone4Seg(pretrained=config.pretrained)
+        net.fpn1 = nn.Identity()
+        net.fpn2 = nn.Identity()
+        net.fpn3 = nn.Identity()
+        net.fpn4 = nn.Identity()
     elif name == 'multi_branch_sum':
         net = MultiBranch_sum(config.base_backbone, len(config.select_list), class_num, mlp_num=config.mlp_num)
         logging.info('created multi_branch_sum !')
     elif name == 'multi_branch_cat':
         net = MultiBranch_cat(config.base_backbone, len(config.select_list), class_num, mlp_num=config.mlp_num)
         logging.info('created multi_branch_cat !')
+    elif name == 'multi_branch_adapter':
+        net = Multi_Adapter_Net(config.base_backbone, len(config.select_list), class_num, layer_names=config.layer_names)
     else:
         raise NotImplementedError('Unknown type {}'.format(config.backbone))
 
